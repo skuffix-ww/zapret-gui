@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(node scripts/build-default-profiles.mjs)",
+      "Read(//d/d/zapret-electron/**)",
+      "Bash(node -e \"const j=require\\('./resources/default-profiles.json'\\); console.log\\('profiles:',j.profiles.length\\); const p=j.profiles.find\\(x=>x.name==='general'\\); console.log\\(JSON.stringify\\(p.globalArgs,null,2\\)\\); console.log\\('sections:',p.sections.length\\); console.log\\('first section args \\(0..3\\):',JSON.stringify\\(p.sections[0].args.slice\\(0,3\\),null,2\\)\\); console.log\\('last section label:',p.sections[p.sections.length-1].label\\);\")",
+      "Bash(node *)"
+    ]
+  }
+}

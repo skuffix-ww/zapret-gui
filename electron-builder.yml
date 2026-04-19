@@ -1,0 +1,25 @@
+appId: dev.zapret.electron
+productName: Zapret GUI
+directories:
+  output: release
+  buildResources: build
+files:
+  - out/**
+  - resources/**
+  - package.json
+  - '!**/*.map'
+extraResources:
+  - from: resources/default-profiles.json
+    to: default-profiles.json
+win:
+  icon: icon.ico
+  target:
+    - target: nsis
+      arch: x64
+  requestedExecutionLevel: requireAdministrator
+nsis:
+  oneClick: false
+  perMachine: true
+  allowToChangeInstallationDirectory: true
+  shortcutName: Zapret GUI
+asar: true
