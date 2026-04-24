@@ -7,6 +7,7 @@ import EditorPage from './pages/EditorPage'
 import ListsPage from './pages/ListsPage'
 import SettingsPage from './pages/SettingsPage'
 import SetupPage from './pages/SetupPage'
+import DiagnosticsPage from './pages/DiagnosticsPage'
 import UpdatePrompt from './components/UpdatePrompt'
 import UpdateProgressToast from './components/UpdateProgressToast'
 
@@ -47,6 +48,7 @@ export default function App(): JSX.Element {
           {route === 'home' && <HomePage />}
           {route === 'editor' && <EditorPage />}
           {route === 'lists' && <ListsPage />}
+          {route === 'diagnostics' && <DiagnosticsPage />}
           {route === 'settings' && <SettingsPage />}
         </main>
       </div>

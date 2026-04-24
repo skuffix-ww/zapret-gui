@@ -10,7 +10,7 @@ import type {
   UpdateInfo
 } from '@shared/types'
 
-type Route = 'home' | 'editor' | 'lists' | 'settings' | 'service' | 'setup'
+type Route = 'home' | 'editor' | 'lists' | 'settings' | 'service' | 'setup' | 'diagnostics'
 
 interface State {
   route: Route

@@ -5,6 +5,8 @@ import type {
   DomainList,
   DownloadProgress,
   LogEntry,
+  PingResult,
+  PingTarget,
   Profile,
   RunState,
   ServiceStatus,
@@ -92,6 +94,10 @@ const api = {
     minimize: (): Promise<void> => ipcRenderer.invoke('window:minimize'),
     maximize: (): Promise<void> => ipcRenderer.invoke('window:maximize'),
     close: (): Promise<void> => ipcRenderer.invoke('window:close')
+  },
+  diag: {
+    ping: (target: PingTarget, opts?: { attempts?: number; timeoutMs?: number }): Promise<PingResult> =>
+      ipcRenderer.invoke(IPC.diagPing, target, opts)
   }
 }
 

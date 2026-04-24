@@ -1,11 +1,16 @@
-import { Home, SlidersHorizontal, ListTree, Settings } from 'lucide-react'
+import { Home, SlidersHorizontal, ListTree, Settings, Activity } from 'lucide-react'
 import { useApp } from '../store'
 import { cn } from '../lib/cn'
 
-const NAV: Array<{ id: 'home' | 'editor' | 'lists' | 'settings'; label: string; icon: typeof Home }> = [
+const NAV: Array<{
+  id: 'home' | 'editor' | 'lists' | 'diagnostics' | 'settings'
+  label: string
+  icon: typeof Home
+}> = [
   { id: 'home', label: 'Главная', icon: Home },
   { id: 'editor', label: 'Редактор', icon: SlidersHorizontal },
   { id: 'lists', label: 'Списки', icon: ListTree },
+  { id: 'diagnostics', label: 'Диагностика', icon: Activity },
   { id: 'settings', label: 'Настройки', icon: Settings }
 ]
 

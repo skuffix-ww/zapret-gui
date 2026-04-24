@@ -24,6 +24,8 @@ import {
 import * as lists from './lists'
 import { buildBat } from '@shared/bat-parser'
 import { checkForUpdate } from './updater'
+import { ping } from './diagnostics'
+import type { PingTarget } from '@shared/types'
 
 function remindLater(ms: number): AppSettings {
   return updateSettings({ updateRemindAt: Date.now() + ms })
@@ -149,6 +151,13 @@ export function registerIpc(): void {
     return remindLater(ms)
   })
   ipcMain.handle(IPC.updateSkip, (_e, tag: string) => skipTag(tag))
+
+  // ---------- diagnostics ----------
+  ipcMain.handle(
+    IPC.diagPing,
+    (_e, target: PingTarget, opts?: { attempts?: number; timeoutMs?: number }) =>
+      ping(target, opts?.attempts, opts?.timeoutMs)
+  )
 
   ipcMain.handle(IPC.systemIsAdmin, async () => {
     if (process.platform !== 'win32') return false

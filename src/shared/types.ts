@@ -102,6 +102,30 @@ export interface DomainList {
   content: string
 }
 
+export interface PingTarget {
+  id: string
+  label: string
+  host: string
+  port: number
+}
+
+export interface PingAttempt {
+  ok: boolean
+  ms?: number
+  error?: string
+}
+
+export interface PingResult {
+  target: PingTarget
+  attempts: PingAttempt[]
+  /** Summary stats across successful attempts. */
+  min: number | null
+  max: number | null
+  avg: number | null
+  /** Success count / total attempts — fraction (0..1) that succeeded. */
+  successRate: number
+}
+
 export const IPC = {
   settingsGet: 'settings:get',
   settingsSet: 'settings:set',
@@ -135,7 +159,8 @@ export const IPC = {
   updateCheck: 'update:check',
   updateRemindLater: 'update:remind-later',
   updateSkip: 'update:skip',
-  updateAvailableEvent: 'update:available'
+  updateAvailableEvent: 'update:available',
+  diagPing: 'diag:ping'
 } as const
 
 export type IpcChannel = (typeof IPC)[keyof typeof IPC]

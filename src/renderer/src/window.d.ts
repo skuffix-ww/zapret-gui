@@ -3,6 +3,8 @@ import type {
   DomainList,
   DownloadProgress,
   LogEntry,
+  PingResult,
+  PingTarget,
   Profile,
   RunState,
   ServiceStatus,
@@ -68,6 +70,9 @@ interface ZapretApi {
     minimize: () => Promise<void>
     maximize: () => Promise<void>
     close: () => Promise<void>
+  }
+  diag: {
+    ping: (target: PingTarget, opts?: { attempts?: number; timeoutMs?: number }) => Promise<PingResult>
   }
 }
 
