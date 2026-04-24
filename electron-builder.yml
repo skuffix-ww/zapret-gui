@@ -17,6 +17,15 @@ win:
     - target: nsis
       arch: x64
   requestedExecutionLevel: requireAdministrator
+  # Code signing with self-signed skuffix.dev cert (certs/skuffix-dev.pfx).
+  # Pass password via CSC_KEY_PASSWORD env var; or override the whole cert via
+  # CSC_LINK + CSC_KEY_PASSWORD for a real CA-issued one.
+  signtoolOptions:
+    certificateFile: certs/skuffix-dev.pfx
+    certificateSubjectName: skuffix.dev
+    signingHashAlgorithms:
+      - sha256
+    rfc3161TimeStampServer: http://timestamp.digicert.com
 nsis:
   oneClick: false
   perMachine: true

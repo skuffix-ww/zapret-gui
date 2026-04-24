@@ -5,3 +5,9 @@ release/
 *.log
 .vite/
 .DS_Store
+
+# Code-signing material — keep private keys out of git
+certs/
+*.pfx
+*.p12
+
