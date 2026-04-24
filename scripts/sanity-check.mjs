@@ -23,10 +23,10 @@ function buildArgv(p) {
     }
   }
   push(p.globalArgs)
-  for (const s of p.sections) {
-    if (s.disabled) continue
-    out.push('--new')
-    push(s.args)
+  const enabled = p.sections.filter((s) => !s.disabled)
+  for (let i = 0; i < enabled.length; i++) {
+    if (i > 0) out.push('--new')
+    push(enabled[i].args)
   }
   return out
 }

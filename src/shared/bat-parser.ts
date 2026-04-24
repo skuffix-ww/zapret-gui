@@ -175,7 +175,7 @@ export function buildArgv(profile: Profile, binDir: string, listsDir: string): s
   push(profile.globalArgs)
   const enabled = profile.sections.filter((s) => !s.disabled)
   for (let i = 0; i < enabled.length; i++) {
-    argv.push('--new')
+    if (i > 0) argv.push('--new')
     push(enabled[i]!.args)
   }
   return argv
