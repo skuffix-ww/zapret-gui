@@ -1,7 +1,7 @@
 {
   "name": "zapret-electron",
   "productName": "Zapret GUI",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Удобный Electron-интерфейс для zapret-discord-youtube от Flowseal",
   "main": "out/main/index.js",
   "author": "zapret-electron",
