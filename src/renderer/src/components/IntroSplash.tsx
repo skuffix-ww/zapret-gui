@@ -75,7 +75,7 @@ export default function IntroSplash({ onDone }: Props): JSX.Element {
           transition: 'opacity 600ms ease 200ms, transform 600ms ease 200ms',
         }}
       >
-        <div className="text-[11px] uppercase tracking-[0.4em] text-white/55">Zapret GUI</div>
+        <div className="text-[11px] uppercase tracking-[0.4em] text-white/55">UnLimit</div>
         <div className="h-[2px] w-24 overflow-hidden rounded-full bg-white/10">
           <div
             className="h-full bg-white/70"

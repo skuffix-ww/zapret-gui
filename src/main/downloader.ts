@@ -117,7 +117,7 @@ function fetchJson(url: string, signal: AbortSignal, depth = 0): Promise<any> {
       {
         method: 'GET',
         headers: {
-          'User-Agent': 'zapret-electron',
+          'User-Agent': 'unlimit',
           Accept: 'application/vnd.github+json'
         },
         signal
@@ -162,7 +162,7 @@ function downloadFile(
       url,
       {
         method: 'GET',
-        headers: { 'User-Agent': 'zapret-electron' },
+        headers: { 'User-Agent': 'unlimit' },
         signal
       },
       (res: IncomingMessage) => {

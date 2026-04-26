@@ -1,10 +1,12 @@
-# Zapret GUI
+# UnLimit
 
-Неофициальная обёртка с приятным интерфейсом поверх [zapret-discord-youtube от Flowseal](https://github.com/Flowseal/zapret-discord-youtube).
+> Раньше — `Zapret GUI`. Сейчас разрастается в **privacy & freedom toolkit для Windows**: обход блокировок, TG-прокси, твики приватности, рекомендации софта, per-app firewall.
 
-Вместо того, чтобы выбирать один из двух десятков `general (ALT7).bat` наугад, правите набор `--new` секций мышкой, переключаете стратегии в один клик и видите живые логи `winws.exe`.
+Ядро остаётся прежним — приятная обёртка поверх [zapret-discord-youtube от Flowseal](https://github.com/Flowseal/zapret-discord-youtube): вместо того, чтобы выбирать один из двух десятков `general (ALT7).bat` наугад, правите набор `--new` секций мышкой, переключаете стратегии в один клик и видите живые логи `winws.exe`.
 
-> **⚠️ Важно.** Это приложение было **завайбкожено за один вечер**. Оно отгружается «как есть», без тестов, без CI, без благословения Flowseal. Автор не несёт никакой ответственности за то, что оно не запустится, порвёт вам интернет. Если найдёте баг — буду искренне признателен **ишшуе** или **пул-реквесту**. Правда. Любое полезное PR будет замерджено после короткого ревью.
+Сделано **eblanchik.studios** ([eblanchik.ru](https://eblanchik.ru)).
+
+> **⚠️ Важно.** Приложение отгружается «как есть», без тестов, без CI, без благословения Flowseal. Автор не несёт никакой ответственности за то, что оно не запустится или порвёт вам интернет. Баг → **issue** или **PR**, любое полезное PR будет замерджено после короткого ревью.
 
 ---
 
@@ -152,19 +154,23 @@ resources/
 - electron-store (persist настроек)
 - electron-builder (NSIS инсталлятор)
 
-## Что хотелось бы когда-нибудь (PRs welcome)
+## Roadmap UnLimit
 
-- [ ] Системный трей + автозапуск с Windows
-- [ ] Hot-reload стратегии без полного рестарта `winws.exe` (если возможно)
-- [ ] Встроенная диагностика: пинг до Discord/Youtube с включённым/выключенным зaпретом для сравнения
-- [ ] Unit-тесты парсера `.bat`
-- [ ] Локализация (UI пока только русский)
-- [ ] Проверка хешей распаковываемых `.exe` (Flowseal советует это в README)
+- [x] Ребрендинг → UnLimit, новый логотип, интро-видео
+- [ ] **TG-прокси** ([Flowseal/tg-ws-proxy](https://github.com/Flowseal/tg-ws-proxy)) встроенным Start/Stop
+- [ ] **Рекомендации софта** с автопарсингом иконок: Minecraft-лаунчеры (PrismLauncher / PineconeMC), VPN (Cloudflare 1.1.1.1, repack.me), браузеры, утилиты приватности
+- [ ] **Privacy tweaks** (à la Chris Titus WinUtil): отключение телеметрии, рекламы, Cortana, Bing-поиска, и т. д. — apply/revert с rollback
+- [ ] **UnGoogleYs** — отписать систему от Google
+- [ ] **Per-app firewall** — запретить интернет выбранным приложениям (через `netsh advfirewall`)
+- [ ] **Quick-launcher**: кнопки/хоткеи для запуска любых программ
+- [ ] Системный трей + автозапуск
+- [ ] Локализация (пока только русский)
 
 ## Благодарности
 
-- **[Flowseal](https://github.com/Flowseal)** — за оригинальный [zapret-discord-youtube](https://github.com/Flowseal/zapret-discord-youtube) и весь подбор стратегий. Без него этой программы бы не было — она просто кнопочки к его работе.
+- **[Flowseal](https://github.com/Flowseal)** — за оригинальный [zapret-discord-youtube](https://github.com/Flowseal/zapret-discord-youtube) и весь подбор стратегий. Без него этой программы бы не было — она просто кнопочки к его работе. Также за [tg-ws-proxy](https://github.com/Flowseal/tg-ws-proxy).
 - **[bol-van/zapret](https://github.com/bol-van/zapret)** — за сам движок (`winws.exe`, WinDivert-интеграция).
+- **[Chris Titus Tech](https://github.com/ChrisTitusTech/winutil)** — за вдохновение для раздела твиков.
 
 ## Лицензия
 

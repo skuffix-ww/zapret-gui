@@ -7,6 +7,7 @@ import { runner } from './runner'
 import { downloader } from './downloader'
 import { checkForUpdate } from './updater'
 import { getSettings } from './settings'
+import { migrateLegacyUserData } from './migrate'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -51,7 +52,8 @@ function wireEvents(win: BrowserWindow): void {
 }
 
 app.whenReady().then(() => {
-  app.setAppUserModelId('dev.zapret.electron')
+  app.setAppUserModelId('dev.unlimit.app')
+  try { migrateLegacyUserData() } catch { /* migration is best-effort */ }
   registerIpc()
   mainWindow = createWindow()
   wireEvents(mainWindow)

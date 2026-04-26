@@ -1,0 +1,15 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="none">
+  <defs>
+    <linearGradient id="ulBody" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8099ff"/>
+      <stop offset="100%" stop-color="#5b73e6"/>
+    </linearGradient>
+  </defs>
+  <rect x="3" y="3" width="58" height="58" rx="14" fill="#171b20" stroke="#2e343d" stroke-width="2"/>
+  <!-- open shackle -->
+  <path d="M22 28 V20 a10 10 0 0 1 20 0" stroke="#8099ff" stroke-width="4.5" stroke-linecap="round"/>
+  <!-- body -->
+  <rect x="16" y="27" width="32" height="24" rx="4" fill="url(#ulBody)"/>
+  <!-- U cutout -->
+  <path d="M26 34 V41 a6 6 0 0 0 12 0 V34" stroke="#0b0d10" stroke-width="3" stroke-linecap="round" fill="none"/>
+</svg>

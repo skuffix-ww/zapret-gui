@@ -1,13 +1,14 @@
 {
-  "name": "zapret-electron",
-  "productName": "Zapret GUI",
+  "name": "unlimit",
+  "productName": "UnLimit",
   "version": "0.1.2",
-  "description": "Удобный Electron-интерфейс для zapret-discord-youtube от Flowseal",
+  "description": "UnLimit — privacy & freedom toolkit для Windows: обход блокировок, TG-прокси, твики приватности, рекомендации софта",
   "main": "out/main/index.js",
-  "author": "zapret-electron",
+  "author": "eblanchik.studios",
   "license": "MIT",
   "scripts": {
     "gen:profiles": "node scripts/build-default-profiles.mjs",
+    "gen:icon": "node scripts/build-icon.mjs",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json",
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json",
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
@@ -28,6 +29,7 @@
     "zustand": "^5.0.2"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "@types/adm-zip": "^0.5.7",
     "@types/node": "^22.10.2",
     "@types/react": "^18.3.17",
@@ -37,6 +39,7 @@
     "electron": "^33.2.1",
     "electron-builder": "^25.1.8",
     "electron-vite": "^2.3.0",
+    "png-to-ico": "^3.0.1",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.2",

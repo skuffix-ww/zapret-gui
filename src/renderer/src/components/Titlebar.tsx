@@ -1,6 +1,7 @@
 import { Minus, Square, X, ShieldCheck } from 'lucide-react'
 import type { RunState } from '@shared/types'
 import { useApp } from '../store'
+import Logo from './Logo'
 
 export default function Titlebar({ showNav = true }: { showNav?: boolean }): JSX.Element {
   const isAdmin = useApp((s) => s.isAdmin)
@@ -9,10 +10,10 @@ export default function Titlebar({ showNav = true }: { showNav?: boolean }): JSX
   return (
     <div className="drag-region flex h-9 select-none items-center border-b border-border bg-bg-subtle px-3 text-[12px]">
       <div className="flex items-center gap-2 text-fg-muted">
-        <img src="/icon.ico" className="h-4 w-4" alt="" />
-        <span className="font-semibold text-fg">Zapret GUI</span>
+        <Logo className="h-4 w-4" />
+        <span className="font-semibold text-fg">UnLimit</span>
         <span className="text-fg-subtle">·</span>
-        <span>Flowseal / zapret-discord-youtube</span>
+        <span>privacy &amp; freedom toolkit</span>
       </div>
       <div className="flex-1" />
       {showNav && (

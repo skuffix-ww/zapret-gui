@@ -1,6 +1,7 @@
 import { Home, SlidersHorizontal, ListTree, Settings, Activity, Heart, ExternalLink } from 'lucide-react'
 import { useApp } from '../store'
 import { cn } from '../lib/cn'
+import Logo from './Logo'
 
 const APP_VERSION = '0.1.2'
 
@@ -47,17 +48,15 @@ export default function Sidebar(): JSX.Element {
       <div className="mt-auto space-y-2">
         <div className="rounded-lg border border-border bg-bg-raised/60 p-3 text-[11px] leading-snug">
           <div className="mb-2 flex items-center gap-2">
-            <img src="/icon.ico" className="h-5 w-5 rounded" alt="" />
+            <Logo className="h-5 w-5 rounded" />
             <div className="min-w-0 flex-1">
-              <div className="truncate font-semibold text-fg">Zapret GUI</div>
+              <div className="truncate font-semibold text-fg">UnLimit</div>
               <div className="text-[10px] text-fg-subtle">v{APP_VERSION}</div>
             </div>
           </div>
           <div className="text-fg-subtle">
-            Неофициальный GUI поверх{' '}
+            Privacy &amp; freedom toolkit. Обход блокировок поверх{' '}
             <span className="text-fg-muted">Flowseal / zapret-discord-youtube</span>.
-            <br />
-            winws.exe / WinDivert — из того же релиза.
           </div>
         </div>
 

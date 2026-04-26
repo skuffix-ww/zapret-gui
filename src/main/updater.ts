@@ -55,7 +55,7 @@ function fetchLatest(depth = 0, url = RELEASES_API): Promise<any> {
       url,
       {
         method: 'GET',
-        headers: { 'User-Agent': 'zapret-electron', Accept: 'application/vnd.github+json' },
+        headers: { 'User-Agent': 'unlimit', Accept: 'application/vnd.github+json' },
         timeout: CHECK_TIMEOUT
       },
       (res) => {

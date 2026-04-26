@@ -1,5 +1,5 @@
-appId: dev.zapret.electron
-productName: Zapret GUI
+appId: dev.unlimit.app
+productName: UnLimit
 directories:
   output: release
   buildResources: build
@@ -30,5 +30,5 @@ nsis:
   oneClick: false
   perMachine: true
   allowToChangeInstallationDirectory: true
-  shortcutName: Zapret GUI
+  shortcutName: UnLimit
 asar: true

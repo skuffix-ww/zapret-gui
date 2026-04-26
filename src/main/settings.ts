@@ -4,7 +4,7 @@ import type { AppSettings } from '@shared/types'
 const DEFAULTS: AppSettings = {
   installPath: null,
   activeProfileId: null,
-  serviceName: 'zapret-electron',
+  serviceName: 'unlimit',
   autoStart: false,
   accent: '#6d8aff',
   minimizeToTray: false,
