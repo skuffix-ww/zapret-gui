@@ -16,6 +16,8 @@ win:
   target:
     - target: nsis
       arch: x64
+    - target: portable
+      arch: x64
   requestedExecutionLevel: requireAdministrator
   # Code signing with self-signed skuffix.dev cert (certs/skuffix-dev.pfx).
   # Pass password via CSC_KEY_PASSWORD env var; or override the whole cert via

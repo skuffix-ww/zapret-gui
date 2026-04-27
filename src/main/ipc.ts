@@ -26,6 +26,11 @@ import { buildBat } from '@shared/bat-parser'
 import { checkForUpdate } from './updater'
 import { ping } from './diagnostics'
 import type { PingTarget } from '@shared/types'
+import { RECOMMENDATIONS } from './recommendations'
+import { resolveIcons } from './iconCache'
+import { chocoJobs, chocoStatus } from './choco'
+import { applyTweak, getCatalog as getTweaksCatalog, listTweaksWithState, revertTweak } from './tweaks'
+import type { TweakInfo } from '@shared/types'
 
 function remindLater(ms: number): AppSettings {
   return updateSettings({ updateRemindAt: Date.now() + ms })
@@ -158,6 +163,34 @@ export function registerIpc(): void {
     (_e, target: PingTarget, opts?: { attempts?: number; timeoutMs?: number }) =>
       ping(target, opts?.attempts, opts?.timeoutMs)
   )
+
+  // ---------- recommendations + chocolatey ----------
+  ipcMain.handle(IPC.recommendationsList, () => RECOMMENDATIONS)
+  ipcMain.handle(IPC.recommendationsIcons, (_e, urls: string[]) => resolveIcons(urls))
+  ipcMain.handle(IPC.chocoStatus, () => chocoStatus())
+  ipcMain.handle(IPC.chocoInstall, async (_e, packageId: string) => {
+    await chocoJobs.installPackage(packageId)
+    return chocoJobs.getState()
+  })
+  ipcMain.handle(IPC.chocoInstallChoco, async () => {
+    await chocoJobs.installChocolatey()
+    return chocoJobs.getState()
+  })
+
+  // ---------- privacy tweaks ----------
+  ipcMain.handle(IPC.tweaksList, (): TweakInfo[] =>
+    getTweaksCatalog().map((t) => ({
+      id: t.id,
+      label: t.label,
+      description: t.description,
+      category: t.category,
+      warning: t.warning,
+      requiresRestart: t.requiresRestart
+    }))
+  )
+  ipcMain.handle(IPC.tweaksState, () => listTweaksWithState())
+  ipcMain.handle(IPC.tweaksApply, (_e, id: string) => applyTweak(id))
+  ipcMain.handle(IPC.tweaksRevert, (_e, id: string) => revertTweak(id))
 
   ipcMain.handle(IPC.systemIsAdmin, async () => {
     if (process.platform !== 'win32') return false

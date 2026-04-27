@@ -8,6 +8,7 @@ import { downloader } from './downloader'
 import { checkForUpdate } from './updater'
 import { getSettings } from './settings'
 import { migrateLegacyUserData } from './migrate'
+import { chocoJobs } from './choco'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -49,6 +50,7 @@ function wireEvents(win: BrowserWindow): void {
   logger.on('entry', (entry) => broadcast(win, IPC.logEvent, entry))
   runner.on('state', (s) => broadcast(win, IPC.runStateEvent, s))
   downloader.on('progress', (p) => broadcast(win, IPC.downloadProgressEvent, p))
+  chocoJobs.on('state', (s) => broadcast(win, IPC.chocoJobEvent, s))
 }
 
 app.whenReady().then(() => {

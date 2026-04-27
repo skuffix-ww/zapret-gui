@@ -8,6 +8,8 @@ import ListsPage from './pages/ListsPage'
 import SettingsPage from './pages/SettingsPage'
 import SetupPage from './pages/SetupPage'
 import DiagnosticsPage from './pages/DiagnosticsPage'
+import RecommendationsPage from './pages/RecommendationsPage'
+import TweaksPage from './pages/TweaksPage'
 import UpdatePrompt from './components/UpdatePrompt'
 import UpdateProgressToast from './components/UpdateProgressToast'
 import IntroSplash from './components/IntroSplash'
@@ -57,6 +59,8 @@ export default function App(): JSX.Element {
           {route === 'editor' && <EditorPage />}
           {route === 'lists' && <ListsPage />}
           {route === 'diagnostics' && <DiagnosticsPage />}
+          {route === 'recommendations' && <RecommendationsPage />}
+          {route === 'tweaks' && <TweaksPage />}
           {route === 'settings' && <SettingsPage />}
         </main>
       </div>

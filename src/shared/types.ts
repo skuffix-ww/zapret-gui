@@ -126,6 +126,60 @@ export interface PingResult {
   successRate: number
 }
 
+export interface Recommendation {
+  id: string
+  name: string
+  description: string
+  url: string
+  /** Override for icon source. If absent, resolver falls back to favicon for `url` host. */
+  iconUrl?: string
+  /** Chocolatey package id, if available — enables one-click install. */
+  chocoId?: string
+  /** Show a red warning ribbon (e.g. piracy/closed-source). */
+  warning?: string
+}
+
+export interface RecommendationCategory {
+  id: string
+  label: string
+  /** Lucide icon name (resolved on the renderer side). */
+  icon: string
+  description?: string
+  items: Recommendation[]
+}
+
+export interface ChocoStatus {
+  installed: boolean
+  version: string | null
+  /** Path to choco.exe if found; null otherwise. */
+  exePath: string | null
+}
+
+export type ChocoJobPhase = 'starting' | 'installing-choco' | 'installing' | 'done' | 'error'
+
+export interface ChocoJobState {
+  /** ID of the recommendation currently being installed (or '__bootstrap__' for choco itself). */
+  jobId: string | null
+  phase: ChocoJobPhase
+  message: string
+  exitCode?: number
+}
+
+export interface TweakInfo {
+  id: string
+  label: string
+  description: string
+  category: 'telemetry' | 'ads' | 'search' | 'system' | 'edge'
+  warning?: string
+  requiresRestart?: boolean
+}
+
+export interface TweakState {
+  id: string
+  applied: boolean
+  appliedAt: number | null
+}
+
 export const IPC = {
   settingsGet: 'settings:get',
   settingsSet: 'settings:set',
@@ -160,7 +214,17 @@ export const IPC = {
   updateRemindLater: 'update:remind-later',
   updateSkip: 'update:skip',
   updateAvailableEvent: 'update:available',
-  diagPing: 'diag:ping'
+  diagPing: 'diag:ping',
+  recommendationsList: 'recommendations:list',
+  recommendationsIcons: 'recommendations:icons',
+  chocoStatus: 'choco:status',
+  chocoInstall: 'choco:install',
+  chocoInstallChoco: 'choco:install-choco',
+  chocoJobEvent: 'choco:job-event',
+  tweaksList: 'tweaks:list',
+  tweaksState: 'tweaks:state',
+  tweaksApply: 'tweaks:apply',
+  tweaksRevert: 'tweaks:revert'
 } as const
 
 export type IpcChannel = (typeof IPC)[keyof typeof IPC]

@@ -1,13 +1,18 @@
 import type {
   AppSettings,
+  ChocoJobState,
+  ChocoStatus,
   DomainList,
   DownloadProgress,
   LogEntry,
   PingResult,
   PingTarget,
   Profile,
+  RecommendationCategory,
   RunState,
   ServiceStatus,
+  TweakInfo,
+  TweakState,
   UpdateInfo
 } from '@shared/types'
 
@@ -73,6 +78,22 @@ interface ZapretApi {
   }
   diag: {
     ping: (target: PingTarget, opts?: { attempts?: number; timeoutMs?: number }) => Promise<PingResult>
+  }
+  recommendations: {
+    list: () => Promise<RecommendationCategory[]>
+    icons: (urls: string[]) => Promise<Record<string, string>>
+  }
+  choco: {
+    status: () => Promise<ChocoStatus>
+    install: (packageId: string) => Promise<ChocoJobState>
+    installChoco: () => Promise<ChocoJobState>
+    onJob: (cb: (s: ChocoJobState) => void) => Unsub
+  }
+  tweaks: {
+    list: () => Promise<TweakInfo[]>
+    state: () => Promise<TweakState[]>
+    apply: (id: string) => Promise<TweakState>
+    revert: (id: string) => Promise<TweakState>
   }
 }
 

@@ -2,14 +2,19 @@ import { contextBridge, ipcRenderer } from 'electron'
 import { IPC } from '@shared/types'
 import type {
   AppSettings,
+  ChocoJobState,
+  ChocoStatus,
   DomainList,
   DownloadProgress,
   LogEntry,
   PingResult,
   PingTarget,
   Profile,
+  RecommendationCategory,
   RunState,
   ServiceStatus,
+  TweakInfo,
+  TweakState,
   UpdateInfo
 } from '@shared/types'
 
@@ -98,6 +103,28 @@ const api = {
   diag: {
     ping: (target: PingTarget, opts?: { attempts?: number; timeoutMs?: number }): Promise<PingResult> =>
       ipcRenderer.invoke(IPC.diagPing, target, opts)
+  },
+  recommendations: {
+    list: (): Promise<RecommendationCategory[]> => ipcRenderer.invoke(IPC.recommendationsList),
+    icons: (urls: string[]): Promise<Record<string, string>> =>
+      ipcRenderer.invoke(IPC.recommendationsIcons, urls)
+  },
+  choco: {
+    status: (): Promise<ChocoStatus> => ipcRenderer.invoke(IPC.chocoStatus),
+    install: (packageId: string): Promise<ChocoJobState> =>
+      ipcRenderer.invoke(IPC.chocoInstall, packageId),
+    installChoco: (): Promise<ChocoJobState> => ipcRenderer.invoke(IPC.chocoInstallChoco),
+    onJob: (cb: (s: ChocoJobState) => void): Unsub => {
+      const listener = (_: unknown, s: ChocoJobState): void => cb(s)
+      ipcRenderer.on(IPC.chocoJobEvent, listener)
+      return () => ipcRenderer.off(IPC.chocoJobEvent, listener)
+    }
+  },
+  tweaks: {
+    list: (): Promise<TweakInfo[]> => ipcRenderer.invoke(IPC.tweaksList),
+    state: (): Promise<TweakState[]> => ipcRenderer.invoke(IPC.tweaksState),
+    apply: (id: string): Promise<TweakState> => ipcRenderer.invoke(IPC.tweaksApply, id),
+    revert: (id: string): Promise<TweakState> => ipcRenderer.invoke(IPC.tweaksRevert, id)
   }
 }
 
