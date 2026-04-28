@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Activity, Loader2, Play } from 'lucide-react'
 import type { PingResult, PingTarget } from '@shared/types'
 import { cn } from '../lib/cn'
+import { useApp } from '../store'
 import { BRAND_COLORS, DiscordIcon, YouTubeIcon } from '../components/icons/SimpleIcons'
 
 interface ProbeDef {
@@ -39,6 +40,7 @@ const TIMEOUT_MS = 5000
 export default function DiagnosticsPage(): JSX.Element {
   const [results, setResults] = useState<Record<string, PingResult | 'running'>>({})
   const [busy, setBusy] = useState(false)
+  const { pendingDiagnosticsRun, consumePendingDiagnostics } = useApp()
 
   const runOne = async (probe: ProbeDef): Promise<void> => {
     setResults((r) => ({ ...r, [probe.target.id]: 'running' }))
@@ -69,6 +71,14 @@ export default function DiagnosticsPage(): JSX.Element {
       setBusy(false)
     }
   }
+
+  useEffect(() => {
+    if (pendingDiagnosticsRun) {
+      consumePendingDiagnostics()
+      void runAll()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingDiagnosticsRun])
 
   return (
     <div className="flex h-full flex-col">

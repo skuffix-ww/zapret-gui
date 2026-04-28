@@ -10,7 +10,9 @@ import {
   Plus,
   Star,
   Search,
-  Terminal
+  Terminal,
+  Activity,
+  Gamepad2
 } from 'lucide-react'
 import { useApp } from '../store'
 import { cn } from '../lib/cn'
@@ -27,7 +29,10 @@ export default function HomePage(): JSX.Element {
     deleteProfile,
     duplicateProfile,
     openEditor,
-    refreshProfiles
+    refreshProfiles,
+    settings,
+    setRoute,
+    pingAllAndShow
   } = useApp()
   const [query, setQuery] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -185,16 +190,41 @@ export default function HomePage(): JSX.Element {
                 </div>
               </div>
               <div className="flex flex-col items-end gap-2">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    className="btn text-xs gap-1.5"
+                    title="Замерить время TLS-рукопожатия до Discord и YouTube"
+                    onClick={() => pingAllAndShow()}
+                  >
+                    <Activity className="h-3.5 w-3.5" />
+                    Пинг серверов
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleStartStop}
+                    className={cn(
+                      'btn gap-2 text-base px-5 py-2.5',
+                      isRunning ? 'btn-danger' : 'btn-primary'
+                    )}
+                  >
+                    {isRunning ? <Square className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                    {isRunning ? 'Остановить' : 'Запустить'}
+                  </button>
+                </div>
                 <button
                   type="button"
-                  onClick={handleStartStop}
+                  onClick={() => setRoute('settings')}
                   className={cn(
-                    'btn gap-2 text-base px-5 py-2.5',
-                    isRunning ? 'btn-danger' : 'btn-primary'
+                    'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] transition-colors',
+                    isGameModeOn(settings)
+                      ? 'border-success/40 bg-success/10 text-success hover:border-success/60'
+                      : 'border-border bg-bg-subtle text-fg-muted hover:border-border-strong'
                   )}
+                  title="Настроить в Настройках → Игровой фильтр"
                 >
-                  {isRunning ? <Square className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                  {isRunning ? 'Остановить' : 'Запустить'}
+                  <Gamepad2 className="h-3 w-3" />
+                  Game mode: {isGameModeOn(settings) ? 'вкл' : 'выкл'}
                 </button>
                 <div className="flex gap-1">
                   <button
@@ -300,6 +330,11 @@ export default function HomePage(): JSX.Element {
       </div>
     </div>
   )
+}
+
+function isGameModeOn(s: { gameFilterTcp: string; gameFilterUdp: string } | null): boolean {
+  if (!s) return false
+  return s.gameFilterTcp.trim().length > 0 && s.gameFilterUdp.trim().length > 0
 }
 
 function plural(n: number, one: string, few: string, many: string): string {

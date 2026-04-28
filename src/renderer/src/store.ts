@@ -27,7 +27,11 @@ interface State {
   updatePrompt: UpdateInfo | null
   updateChecking: boolean
   updateInstalling: boolean
+  /** When true, DiagnosticsPage triggers runAll on mount and resets the flag. */
+  pendingDiagnosticsRun: boolean
   setRoute(r: Route): void
+  pingAllAndShow(): void
+  consumePendingDiagnostics(): void
   bootstrap(): Promise<void>
   refreshProfiles(): Promise<void>
   setActive(id: string): void
@@ -66,8 +70,11 @@ export const useApp = create<State>((set, get) => ({
   updatePrompt: null,
   updateChecking: false,
   updateInstalling: false,
+  pendingDiagnosticsRun: false,
 
   setRoute: (route) => set({ route }),
+  pingAllAndShow: () => set({ route: 'diagnostics', pendingDiagnosticsRun: true }),
+  consumePendingDiagnostics: () => set({ pendingDiagnosticsRun: false }),
 
   bootstrap: async () => {
     const [settings, profiles, runState, logs, listsCatalog, serviceStatus, isAdmin] = await Promise.all([

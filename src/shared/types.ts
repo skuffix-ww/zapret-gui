@@ -50,6 +50,8 @@ export interface AppSettings {
   updateSkippedTag: string | null
   /** Master toggle for auto-checking on startup. */
   autoCheckUpdates: boolean
+  /** Show OS toast when a tracked game launches. */
+  notifyGameLaunch: boolean
 }
 
 export type RunState =

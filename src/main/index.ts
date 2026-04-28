@@ -9,6 +9,7 @@ import { checkForUpdate } from './updater'
 import { getSettings } from './settings'
 import { migrateLegacyUserData } from './migrate'
 import { chocoJobs } from './choco'
+import { startGameWatcher, stopGameWatcher } from './gameWatcher'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -60,12 +61,14 @@ app.whenReady().then(() => {
   mainWindow = createWindow()
   wireEvents(mainWindow)
   scheduleBackgroundUpdateCheck(mainWindow)
+  startGameWatcher(mainWindow)
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       mainWindow = createWindow()
       wireEvents(mainWindow)
       scheduleBackgroundUpdateCheck(mainWindow)
+      startGameWatcher(mainWindow)
     }
   })
 })
@@ -91,6 +94,7 @@ app.on('window-all-closed', () => {
 
 app.on('before-quit', () => {
   try { runner.stop() } catch { /* ignore */ }
+  try { stopGameWatcher() } catch { /* ignore */ }
 })
 
 // Window control IPC (custom titlebar buttons).

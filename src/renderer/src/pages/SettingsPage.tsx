@@ -9,9 +9,12 @@ import {
   Trash2,
   Wrench,
   Sparkles,
-  CircleCheck
+  CircleCheck,
+  Gamepad2,
+  Bell
 } from 'lucide-react'
 import { useApp } from '../store'
+import { cn } from '../lib/cn'
 
 export default function SettingsPage(): JSX.Element {
   const {
@@ -224,24 +227,63 @@ export default function SettingsPage(): JSX.Element {
         )}
       </section>
 
-      {/* Game filter */}
+      {/* Game mode */}
       <section className="card p-6">
-        <div className="mb-1 text-lg font-semibold">Игровой фильтр</div>
-        <div className="mb-4 text-sm text-fg-muted">
-          Заменяется в <code>%GameFilterTCP%</code> / <code>%GameFilterUDP%</code> при запуске.
-          Аналог <code>service.bat load_game_filter</code>.
+        <div className="mb-1 flex items-center gap-2 text-lg font-semibold">
+          <Gamepad2 className="h-4 w-4 text-accent" />
+          Игровой режим (Game mode)
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <Field
-            label="GameFilterTCP"
-            value={settings.gameFilterTcp}
-            onCommit={(v) => setSettings({ gameFilterTcp: v })}
+        <div className="mb-4 text-sm text-fg-muted">
+          Тумблер из <code>service.bat</code> Flowseal. Включает обход DPI для игровых портов
+          (Cloudflare, P2P-лобби и т.д.) — подставляется в <code>%GameFilterTCP%</code> /
+          <code> %GameFilterUDP%</code> у встроенных профилей.
+        </div>
+        <GameModeToggle
+          tcp={settings.gameFilterTcp}
+          udp={settings.gameFilterUdp}
+          onChange={(tcp, udp) => setSettings({ gameFilterTcp: tcp, gameFilterUdp: udp })}
+        />
+        <details className="mt-4 group">
+          <summary className="cursor-pointer text-xs text-fg-subtle hover:text-fg-muted">
+            Кастомные диапазоны портов
+          </summary>
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <Field
+              label="GameFilterTCP"
+              value={settings.gameFilterTcp}
+              onCommit={(v) => setSettings({ gameFilterTcp: v })}
+            />
+            <Field
+              label="GameFilterUDP"
+              value={settings.gameFilterUdp}
+              onCommit={(v) => setSettings({ gameFilterUdp: v })}
+            />
+          </div>
+        </details>
+      </section>
+
+      {/* Game-launch notifications */}
+      <section className="card p-6">
+        <div className="mb-1 flex items-center gap-2 text-lg font-semibold">
+          <Bell className="h-4 w-4 text-accent" />
+          Уведомления о запуске игр
+        </div>
+        <div className="mb-4 text-sm text-fg-muted">
+          Когда ты запускаешь известную игру, UnLimit показывает системное уведомление с предложением включить обход.
+          Полезно, если провайдер режет Cloudflare/voice/matchmaking.
+        </div>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            className="h-4 w-4 accent-accent"
+            checked={settings.notifyGameLaunch}
+            onChange={(e) => void setSettings({ notifyGameLaunch: e.target.checked })}
           />
-          <Field
-            label="GameFilterUDP"
-            value={settings.gameFilterUdp}
-            onCommit={(v) => setSettings({ gameFilterUdp: v })}
-          />
+          Показывать уведомления при запуске игр
+        </label>
+        <div className="mt-3 text-[11px] text-fg-subtle">
+          Покрытие: s&amp;box, Rust, ARC Raiders, Apex Legends, Counter-Strike 2.
+          Кулдаун между уведомлениями для одной игры — 5 минут.
         </div>
       </section>
 
@@ -323,6 +365,82 @@ export default function SettingsPage(): JSX.Element {
           </div>
         )}
       </section>
+    </div>
+  )
+}
+
+const GAME_MODE_PRESETS: Array<{ id: string; label: string; tcp: string; udp: string; hint: string }> = [
+  {
+    id: 'off',
+    label: 'Выключен',
+    tcp: '',
+    udp: '',
+    hint: 'Игровые порты не трогать'
+  },
+  {
+    id: 'full',
+    label: 'Все игровые порты',
+    tcp: '1024-65535',
+    udp: '1024-65535',
+    hint: 'Дефолт Flowseal — 1024-65535. Покрывает Cloudflare, лобби, voice'
+  },
+  {
+    id: 'cloudflare',
+    label: 'Только Cloudflare',
+    tcp: '2053,2083,2087,2096,8443',
+    udp: '443',
+    hint: 'Узкий пресет под игры на Cloudflare без P2P'
+  }
+]
+
+function detectPreset(tcp: string, udp: string): string {
+  for (const p of GAME_MODE_PRESETS) {
+    if (p.tcp === tcp && p.udp === udp) return p.id
+  }
+  return 'custom'
+}
+
+function GameModeToggle({
+  tcp,
+  udp,
+  onChange
+}: {
+  tcp: string
+  udp: string
+  onChange: (tcp: string, udp: string) => void
+}): JSX.Element {
+  const active = detectPreset(tcp, udp)
+  return (
+    <div className="space-y-2">
+      <div className="grid grid-cols-3 gap-2">
+        {GAME_MODE_PRESETS.map((p) => {
+          const selected = active === p.id
+          return (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => onChange(p.tcp, p.udp)}
+              className={cn(
+                'rounded-md border px-3 py-2 text-left transition-colors',
+                selected
+                  ? 'border-accent/60 bg-accent/10'
+                  : 'border-border bg-bg-subtle hover:border-border-strong'
+              )}
+            >
+              <div className="flex items-center justify-between gap-1">
+                <div className="text-sm font-medium">{p.label}</div>
+                {selected && <Check className="h-3.5 w-3.5 text-accent" />}
+              </div>
+              <div className="mt-0.5 text-[11px] leading-snug text-fg-subtle">{p.hint}</div>
+            </button>
+          )
+        })}
+      </div>
+      {active === 'custom' && (
+        <div className="text-[11px] text-fg-subtle">
+          Текущие значения не совпадают с пресетами — режим «Custom». Меняйте значения ниже.
+        </div>
+      )}
     </div>
   )
 }

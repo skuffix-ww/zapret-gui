@@ -14,7 +14,8 @@ const DEFAULTS: AppSettings = {
   installedReleaseTag: null,
   updateRemindAt: null,
   updateSkippedTag: null,
-  autoCheckUpdates: true
+  autoCheckUpdates: true,
+  notifyGameLaunch: true
 }
 
 const store = new Store<AppSettings>({
