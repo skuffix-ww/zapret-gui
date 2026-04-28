@@ -1,51 +1,62 @@
-import { useEffect, useState } from 'react'
-import { Activity, Loader2, Play } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { Activity, Globe, Loader2, Play, Trophy } from 'lucide-react'
 import type { PingResult, PingTarget } from '@shared/types'
 import { cn } from '../lib/cn'
 import { useApp } from '../store'
 import { BRAND_COLORS, DiscordIcon, YouTubeIcon } from '../components/icons/SimpleIcons'
 
+type IconComponent = (props: { className?: string; style?: React.CSSProperties }) => JSX.Element
+
 interface ProbeDef {
   target: PingTarget
+  category: string
   color: string
-  Icon: (props: { className?: string; style?: React.CSSProperties }) => JSX.Element
+  Icon: IconComponent
 }
 
+const GenericIcon: IconComponent = (props) => <Globe className={props.className} style={props.style} />
+
 const PROBES: ProbeDef[] = [
-  {
-    target: { id: 'discord', label: 'Discord', host: 'discord.com', port: 443 },
-    color: BRAND_COLORS.discord,
-    Icon: DiscordIcon
-  },
-  {
-    target: { id: 'discord-gateway', label: 'Discord Gateway', host: 'gateway.discord.gg', port: 443 },
-    color: BRAND_COLORS.discord,
-    Icon: DiscordIcon
-  },
-  {
-    target: { id: 'youtube', label: 'YouTube', host: 'www.youtube.com', port: 443 },
-    color: BRAND_COLORS.youtube,
-    Icon: YouTubeIcon
-  },
-  {
-    target: { id: 'youtube-api', label: 'YouTube API', host: 'youtubei.googleapis.com', port: 443 },
-    color: BRAND_COLORS.youtube,
-    Icon: YouTubeIcon
-  }
+  // Discord
+  { target: { id: 'discord', label: 'Discord', host: 'discord.com', port: 443 }, category: 'Discord', color: BRAND_COLORS.discord, Icon: DiscordIcon },
+  { target: { id: 'discord-gateway', label: 'Discord Gateway', host: 'gateway.discord.gg', port: 443 }, category: 'Discord', color: BRAND_COLORS.discord, Icon: DiscordIcon },
+  { target: { id: 'discord-cdn', label: 'Discord CDN', host: 'cdn.discordapp.com', port: 443 }, category: 'Discord', color: BRAND_COLORS.discord, Icon: DiscordIcon },
+  { target: { id: 'discord-media', label: 'Discord Media', host: 'media.discordapp.net', port: 443 }, category: 'Discord', color: BRAND_COLORS.discord, Icon: DiscordIcon },
+  // YouTube
+  { target: { id: 'youtube', label: 'YouTube', host: 'www.youtube.com', port: 443 }, category: 'YouTube', color: BRAND_COLORS.youtube, Icon: YouTubeIcon },
+  { target: { id: 'youtube-api', label: 'YouTube API', host: 'youtubei.googleapis.com', port: 443 }, category: 'YouTube', color: BRAND_COLORS.youtube, Icon: YouTubeIcon },
+  { target: { id: 'googlevideo', label: 'GoogleVideo CDN', host: 'rr5---sn-q4f7snes.googlevideo.com', port: 443 }, category: 'YouTube', color: BRAND_COLORS.youtube, Icon: YouTubeIcon },
+  // Cloudflare / прочее
+  { target: { id: 'cloudflare', label: 'Cloudflare DNS', host: '1.1.1.1', port: 443 }, category: 'Прочее', color: '#F38020', Icon: GenericIcon },
+  { target: { id: 'github', label: 'GitHub', host: 'github.com', port: 443 }, category: 'Прочее', color: '#a0a4a8', Icon: GenericIcon },
+  { target: { id: 'twitch', label: 'Twitch', host: 'www.twitch.tv', port: 443 }, category: 'Прочее', color: '#9146FF', Icon: GenericIcon },
+  { target: { id: 'steam', label: 'Steam Store', host: 'store.steampowered.com', port: 443 }, category: 'Прочее', color: '#1B2838', Icon: GenericIcon },
+  { target: { id: 'telegram', label: 'Telegram Web', host: 'web.telegram.org', port: 443 }, category: 'Прочее', color: '#26A5E4', Icon: GenericIcon },
+  { target: { id: 'reddit', label: 'Reddit', host: 'www.reddit.com', port: 443 }, category: 'Прочее', color: '#FF4500', Icon: GenericIcon },
+  { target: { id: 'twitter', label: 'X (Twitter)', host: 'x.com', port: 443 }, category: 'Прочее', color: '#a0a4a8', Icon: GenericIcon },
+  { target: { id: 'spotify', label: 'Spotify', host: 'open.spotify.com', port: 443 }, category: 'Прочее', color: '#1DB954', Icon: GenericIcon },
+  { target: { id: 'sbox', label: 's&box (Facepunch)', host: 'sbox.facepunch.com', port: 443 }, category: 'Игры', color: '#3F8EFC', Icon: GenericIcon },
+  { target: { id: 'rust-facepunch', label: 'Rust (Facepunch)', host: 'companion-rust.facepunch.com', port: 443 }, category: 'Игры', color: '#CD412B', Icon: GenericIcon },
+  { target: { id: 'epic', label: 'Epic Games', host: 'store.epicgames.com', port: 443 }, category: 'Игры', color: '#a0a4a8', Icon: GenericIcon }
 ]
 
-const ATTEMPTS = 5
-const TIMEOUT_MS = 5000
+const DEFAULT_ATTEMPTS = 5
+const DEFAULT_TIMEOUT = 5000
 
 export default function DiagnosticsPage(): JSX.Element {
   const [results, setResults] = useState<Record<string, PingResult | 'running'>>({})
   const [busy, setBusy] = useState(false)
+  const [attempts, setAttempts] = useState(DEFAULT_ATTEMPTS)
+  const [timeoutSec, setTimeoutSec] = useState(DEFAULT_TIMEOUT / 1000)
   const { pendingDiagnosticsRun, consumePendingDiagnostics } = useApp()
 
   const runOne = async (probe: ProbeDef): Promise<void> => {
     setResults((r) => ({ ...r, [probe.target.id]: 'running' }))
     try {
-      const res = await window.api.diag.ping(probe.target, { attempts: ATTEMPTS, timeoutMs: TIMEOUT_MS })
+      const res = await window.api.diag.ping(probe.target, {
+        attempts,
+        timeoutMs: Math.round(timeoutSec * 1000)
+      })
       setResults((r) => ({ ...r, [probe.target.id]: res }))
     } catch (e) {
       setResults((r) => ({
@@ -65,6 +76,7 @@ export default function DiagnosticsPage(): JSX.Element {
   const runAll = async (): Promise<void> => {
     if (busy) return
     setBusy(true)
+    setResults({})
     try {
       await Promise.all(PROBES.map(runOne))
     } finally {
@@ -80,39 +92,131 @@ export default function DiagnosticsPage(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingDiagnosticsRun])
 
+  const categories = useMemo(() => {
+    const m = new Map<string, ProbeDef[]>()
+    for (const p of PROBES) {
+      const list = m.get(p.category) ?? []
+      list.push(p)
+      m.set(p.category, list)
+    }
+    return [...m.entries()]
+  }, [])
+
+  const top = useMemo(() => {
+    const finished: Array<{ probe: ProbeDef; res: PingResult }> = []
+    for (const probe of PROBES) {
+      const v = results[probe.target.id]
+      if (v && v !== 'running' && v.successRate > 0 && v.avg !== null) {
+        finished.push({ probe, res: v })
+      }
+    }
+    finished.sort((a, b) => (a.res.avg ?? Infinity) - (b.res.avg ?? Infinity))
+    return finished.slice(0, 5)
+  }, [results])
+
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between gap-4 border-b border-border p-5">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border p-5">
         <div>
           <div className="mb-1 flex items-center gap-2">
             <Activity className="h-5 w-5 text-accent" />
             <h2 className="text-xl font-semibold">Диагностика</h2>
           </div>
           <div className="text-sm text-fg-muted">
-            Измерение времени TLS-рукопожатия до Discord и YouTube. Запускайте до и после включения zapret,
-            чтобы увидеть, помогает ли он.
+            Время TLS-рукопожатия до популярных сервисов. Запускай до и после включения UnLimit, чтобы увидеть разницу.
           </div>
         </div>
-        <button type="button" className="btn btn-primary gap-2" onClick={runAll} disabled={busy}>
-          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
-          Запустить все
-        </button>
-      </div>
-
-      <div className="flex-1 overflow-auto p-5">
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-          {PROBES.map((probe) => (
-            <ProbeCard
-              key={probe.target.id}
-              probe={probe}
-              state={results[probe.target.id] ?? null}
-              onRun={() => runOne(probe)}
-              disabled={busy}
-            />
-          ))}
+        <div className="flex items-center gap-3">
+          <NumField label="Замеров" min={1} max={10} value={attempts} onChange={setAttempts} disabled={busy} />
+          <NumField label="Таймаут, с" min={1} max={15} value={timeoutSec} onChange={setTimeoutSec} disabled={busy} step={0.5} />
+          <button type="button" className="btn btn-primary gap-2" onClick={runAll} disabled={busy}>
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+            Запустить все
+          </button>
         </div>
       </div>
+
+      <div className="flex-1 overflow-auto p-5 space-y-6">
+        {top.length > 0 && (
+          <section>
+            <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-fg">
+              <Trophy className="h-4 w-4 text-warning" />
+              Топ серверов по avg-пингу
+            </div>
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-5">
+              {top.map(({ probe, res }, i) => (
+                <div key={probe.target.id} className="card flex items-center gap-3 p-3">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border bg-bg-raised text-xs font-mono text-fg-subtle">
+                    {i + 1}
+                  </div>
+                  <probe.Icon className="h-5 w-5 shrink-0" style={{ color: probe.color }} />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-xs font-medium">{probe.target.label}</div>
+                    <div className={cn('font-mono text-sm', toneClass(toneForMs(res.avg)))}>{formatMs(res.avg)}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {categories.map(([cat, probes]) => (
+          <section key={cat}>
+            <div className="mb-2 text-sm font-semibold text-fg">{cat}</div>
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+              {probes.map((probe) => (
+                <ProbeCard
+                  key={probe.target.id}
+                  probe={probe}
+                  state={results[probe.target.id] ?? null}
+                  onRun={() => runOne(probe)}
+                  disabled={busy}
+                  attempts={attempts}
+                  timeoutSec={timeoutSec}
+                />
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
     </div>
+  )
+}
+
+function NumField({
+  label,
+  min,
+  max,
+  step = 1,
+  value,
+  onChange,
+  disabled
+}: {
+  label: string
+  min: number
+  max: number
+  step?: number
+  value: number
+  onChange: (v: number) => void
+  disabled?: boolean
+}): JSX.Element {
+  return (
+    <label className="flex items-center gap-1.5 text-xs text-fg-muted">
+      {label}
+      <input
+        type="number"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => {
+          const v = Number(e.target.value)
+          if (!Number.isNaN(v)) onChange(Math.max(min, Math.min(max, v)))
+        }}
+        disabled={disabled}
+        className="input h-7 w-16 px-2 text-sm tabular-nums"
+      />
+    </label>
   )
 }
 
@@ -120,12 +224,16 @@ function ProbeCard({
   probe,
   state,
   onRun,
-  disabled
+  disabled,
+  attempts,
+  timeoutSec
 }: {
   probe: ProbeDef
   state: PingResult | 'running' | null
   onRun: () => void
   disabled: boolean
+  attempts: number
+  timeoutSec: number
 }): JSX.Element {
   const running = state === 'running'
   const result = state && state !== 'running' ? state : null
@@ -185,7 +293,7 @@ function ProbeCard({
       )}
       {!result && !running && (
         <div className="text-xs text-fg-subtle">
-          {ATTEMPTS} замеров, таймаут {TIMEOUT_MS / 1000}с
+          {attempts} замеров, таймаут {timeoutSec}с
         </div>
       )}
     </div>
@@ -204,16 +312,7 @@ function Stat({
   return (
     <div className="rounded-md border border-border bg-bg-raised/50 p-2">
       <div className="text-[10px] uppercase tracking-wider text-fg-subtle">{label}</div>
-      <div
-        className={cn(
-          'font-mono text-sm font-medium',
-          tone === 'ok' && 'text-success',
-          tone === 'warn' && 'text-warning',
-          tone === 'bad' && 'text-danger'
-        )}
-      >
-        {value}
-      </div>
+      <div className={cn('font-mono text-sm font-medium', toneClass(tone))}>{value}</div>
     </div>
   )
 }
@@ -227,4 +326,11 @@ function toneForMs(ms: number | null): 'ok' | 'warn' | 'bad' | undefined {
   if (ms < 200) return 'ok'
   if (ms < 800) return 'warn'
   return 'bad'
+}
+
+function toneClass(tone?: 'ok' | 'warn' | 'bad'): string | undefined {
+  if (tone === 'ok') return 'text-success'
+  if (tone === 'warn') return 'text-warning'
+  if (tone === 'bad') return 'text-danger'
+  return undefined
 }

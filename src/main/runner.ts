@@ -1,7 +1,7 @@
-import { spawn, type ChildProcessByStdio } from 'node:child_process'
+import { spawn, execFile, type ChildProcessByStdio } from 'node:child_process'
 import type { Readable } from 'node:stream'
 import { EventEmitter } from 'node:events'
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { buildArgv } from '@shared/bat-parser'
 import type { Profile, RunState } from '@shared/types'
@@ -42,10 +42,25 @@ class Runner extends EventEmitter {
 
     const ldir = listsDir(settings.installPath)
     mkdirSync(ldir, { recursive: true })
-    for (const f of ['list-general-user.txt', 'list-exclude-user.txt', 'ipset-exclude-user.txt']) {
-      const p = join(ldir, f)
-      if (!existsSync(p)) writeFileSync(p, '', 'utf8')
+    // service.bat → :load_user_lists заполняет user-файлы плейсхолдером, иначе winws падает на пустых hostlist'ах.
+    const userDefaults: Record<string, string> = {
+      'list-general-user.txt': 'domain.example.abc',
+      'list-exclude-user.txt': 'domain.example.abc',
+      'ipset-exclude-user.txt': '203.0.113.113/32'
     }
+    for (const [f, def] of Object.entries(userDefaults)) {
+      const p = join(ldir, f)
+      if (!existsSync(p) || statSync(p).size === 0) writeFileSync(p, def + '\r\n', 'utf8')
+    }
+    // ipset-all.txt должен содержать хотя бы одну строку, иначе ipset-фильтры пустые → winws молча не цепляет ничего.
+    const ipsetAll = join(ldir, 'ipset-all.txt')
+    if (!existsSync(ipsetAll) || readFileSync(ipsetAll, 'utf8').replace(/\s/g, '').length === 0) {
+      writeFileSync(ipsetAll, '0.0.0.0/0\r\n', 'utf8')
+    }
+    // Повторяем :tcp_enable из service.bat — без timestamps часть стратегий с split/disorder работает нестабильно.
+    execFile('netsh.exe', ['interface', 'tcp', 'set', 'global', 'timestamps=enabled'], { windowsHide: true }, (err) => {
+      if (err) logger.warn(`netsh tcp timestamps: ${err.message} (нужны права администратора?)`)
+    })
 
     const gameFilter = settings.gameFilterTcp !== '12' ? settings.gameFilterTcp : settings.gameFilterUdp
 
