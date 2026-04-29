@@ -68,7 +68,7 @@ export const RECOMMENDATIONS: RecommendationCategory[] = [
     description: 'Лаунчеры, серверы, утилиты.',
     items: [
       { id: 'prismlauncher', name: 'Prism Launcher', description: 'Лучший open-source MC-лаунчер. Только лицензия.', url: 'https://prismlauncher.org', chocoId: 'prismlauncher' },
-      { id: 'pineconemc', name: 'Pinecone Launcher', description: 'Форк Prism Launcher с поддержкой пиратских аккаунтов.', url: 'https://pineconemc.com' },
+      { id: 'pineconemc', name: 'Pinecone Launcher', description: 'Форк Prism Launcher с поддержкой пиратских аккаунтов.', url: 'https://pineconemc.ru/' },
       { id: 'modrinth-app', name: 'Modrinth App', description: 'Лаунчер от Modrinth, удобная установка модов.', url: 'https://modrinth.com/app' },
       { id: 'atlauncher', name: 'ATLauncher', description: 'Альтернатива с большой коллекцией модпаков.', url: 'https://atlauncher.com', chocoId: 'atlauncher' },
       { id: 'lunarclient', name: 'Lunar Client', description: 'Закрытый, но популярный (FPS, оптимизация).', url: 'https://lunarclient.com' }

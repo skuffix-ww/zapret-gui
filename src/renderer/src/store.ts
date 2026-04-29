@@ -5,6 +5,8 @@ import type {
   DownloadProgress,
   LogEntry,
   Profile,
+  ProfileBenchProgress,
+  ProfileBenchResult,
   RunState,
   ServiceStatus,
   UpdateInfo
@@ -29,6 +31,13 @@ interface State {
   updateInstalling: boolean
   /** When true, DiagnosticsPage triggers runAll on mount and resets the flag. */
   pendingDiagnosticsRun: boolean
+  /** Profile bench state — survives navigation. */
+  benchRunning: boolean
+  benchProgress: ProfileBenchProgress | null
+  benchResults: ProfileBenchResult[]
+  benchDoneInfo: { cancelled: boolean; error?: string } | null
+  startBench(profileIds: string[]): Promise<void>
+  cancelBench(): Promise<void>
   setRoute(r: Route): void
   pingAllAndShow(): void
   consumePendingDiagnostics(): void
@@ -71,6 +80,10 @@ export const useApp = create<State>((set, get) => ({
   updateChecking: false,
   updateInstalling: false,
   pendingDiagnosticsRun: false,
+  benchRunning: false,
+  benchProgress: null,
+  benchResults: [],
+  benchDoneInfo: null,
 
   setRoute: (route) => set({ route }),
   pingAllAndShow: () => set({ route: 'diagnostics', pendingDiagnosticsRun: true }),
@@ -107,6 +120,39 @@ export const useApp = create<State>((set, get) => ({
     })
     window.api.install.onProgress((p) => set({ download: p }))
     window.api.updates.onAvailable((info) => set({ updatePrompt: info }))
+    window.api.bench.onProgress((p) => {
+      const running = p.phase === 'preparing' || p.phase === 'running'
+      set({ benchProgress: p, benchRunning: running })
+    })
+    window.api.bench.onResult((r) => {
+      set({ benchResults: [...get().benchResults, r] })
+    })
+    window.api.bench.onDone((d) => {
+      set({ benchDoneInfo: d, benchRunning: false })
+    })
+  },
+
+  startBench: async (profileIds) => {
+    set({
+      benchResults: [],
+      benchProgress: null,
+      benchDoneInfo: null,
+      benchRunning: true
+    })
+    try {
+      await window.api.bench.start(profileIds)
+    } catch (e) {
+      set({ benchRunning: false, benchDoneInfo: { cancelled: false, error: (e as Error).message } })
+      throw e
+    }
+  },
+
+  cancelBench: async () => {
+    try {
+      await window.api.bench.cancel()
+    } catch {
+      /* ignore */
+    }
   },
 
   refreshProfiles: async () => set({ profiles: await window.api.profiles.list() }),

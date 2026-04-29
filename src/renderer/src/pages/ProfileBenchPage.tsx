@@ -1,45 +1,28 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo } from 'react'
 import { Loader2, Play, Square, Trophy, Zap } from 'lucide-react'
-import type { ProfileBenchProgress, ProfileBenchResult } from '@shared/types'
 import { useApp } from '../store'
 import { cn } from '../lib/cn'
+import type { ProfileBenchResult } from '@shared/types'
 
 const TOP_N = 10
 
 export default function ProfileBenchPage(): JSX.Element {
-  const { profiles, settings, setActive } = useApp()
-  const [running, setRunning] = useState(false)
-  const [progress, setProgress] = useState<ProfileBenchProgress | null>(null)
-  const [results, setResults] = useState<ProfileBenchResult[]>([])
-  const [doneInfo, setDoneInfo] = useState<{ cancelled: boolean; error?: string } | null>(null)
-  const offProgress = useRef<(() => void) | null>(null)
-  const offResult = useRef<(() => void) | null>(null)
-  const offDone = useRef<(() => void) | null>(null)
+  const {
+    profiles,
+    settings,
+    setActive,
+    benchRunning,
+    benchProgress,
+    benchResults,
+    benchDoneInfo,
+    startBench,
+    cancelBench
+  } = useApp()
 
   const builtinProfiles = useMemo(() => profiles.filter((p) => p.builtin), [profiles])
 
-  useEffect(() => {
-    offProgress.current = window.api.bench.onProgress((p) => {
-      setProgress(p)
-      if (p.phase === 'preparing' || p.phase === 'running') setRunning(true)
-      if (p.phase === 'done' || p.phase === 'cancelled' || p.phase === 'error') setRunning(false)
-    })
-    offResult.current = window.api.bench.onResult((r) => {
-      setResults((prev) => [...prev, r])
-    })
-    offDone.current = window.api.bench.onDone((d) => {
-      setDoneInfo(d)
-      setRunning(false)
-    })
-    return () => {
-      offProgress.current?.()
-      offResult.current?.()
-      offDone.current?.()
-    }
-  }, [])
-
   const start = async (mode: 'all' | 'builtin'): Promise<void> => {
-    if (running) return
+    if (benchRunning) return
     if (!settings?.installPath) {
       alert('Сначала укажите путь установки в Настройках')
       return
@@ -49,39 +32,26 @@ export default function ProfileBenchPage(): JSX.Element {
       alert('Нет профилей для теста')
       return
     }
-    setResults([])
-    setProgress(null)
-    setDoneInfo(null)
-    setRunning(true)
     try {
-      await window.api.bench.start(list.map((p) => p.id))
+      await startBench(list.map((p) => p.id))
     } catch (e) {
-      setRunning(false)
       alert(`Не удалось запустить: ${(e as Error).message}`)
     }
   }
 
-  const cancel = async (): Promise<void> => {
-    try {
-      await window.api.bench.cancel()
-    } catch {
-      /* ignore */
-    }
-  }
-
   const sorted = useMemo(() => {
-    return [...results].sort((a, b) => {
+    return [...benchResults].sort((a, b) => {
       if (a.avgMs === null && b.avgMs === null) return b.successRate - a.successRate
       if (a.avgMs === null) return 1
       if (b.avgMs === null) return -1
       return a.avgMs - b.avgMs
     })
-  }, [results])
+  }, [benchResults])
 
   const top = sorted.slice(0, TOP_N)
   const winner = top[0]
-  const total = progress?.total ?? 0
-  const done = progress?.done ?? 0
+  const total = benchProgress?.total ?? 0
+  const done = benchProgress?.done ?? 0
   const pct = total > 0 ? Math.round((done / total) * 100) : 0
 
   return (
@@ -99,7 +69,7 @@ export default function ProfileBenchPage(): JSX.Element {
           </div>
         </div>
         <div className="flex flex-col items-end gap-2">
-          {!running ? (
+          {!benchRunning ? (
             <div className="flex gap-2">
               <button
                 type="button"
@@ -122,7 +92,7 @@ export default function ProfileBenchPage(): JSX.Element {
               </button>
             </div>
           ) : (
-            <button type="button" className="btn btn-ghost text-xs" onClick={cancel}>
+            <button type="button" className="btn btn-ghost text-xs" onClick={cancelBench}>
               <Square className="h-3.5 w-3.5" />
               Остановить
             </button>
@@ -131,12 +101,12 @@ export default function ProfileBenchPage(): JSX.Element {
       </div>
 
       <div className="flex-1 overflow-auto p-5 space-y-5">
-        {progress && (
+        {benchProgress && (
           <div className="card p-4">
             <div className="mb-2 flex items-center justify-between text-sm">
               <div className="flex items-center gap-2">
-                {running && <Loader2 className="h-4 w-4 animate-spin text-accent" />}
-                <span className="font-medium">{progress.message}</span>
+                {benchRunning && <Loader2 className="h-4 w-4 animate-spin text-accent" />}
+                <span className="font-medium">{benchProgress.message}</span>
               </div>
               <span className="text-fg-subtle text-xs">
                 {done} / {total} ({pct}%)
@@ -148,21 +118,21 @@ export default function ProfileBenchPage(): JSX.Element {
                 style={{ width: `${pct}%` }}
               />
             </div>
-            {progress.currentProfileName && (
+            {benchProgress.currentProfileName && (
               <div className="mt-2 text-[12px] text-fg-muted">
-                Сейчас: <span className="text-fg">{progress.currentProfileName}</span>
+                Сейчас: <span className="text-fg">{benchProgress.currentProfileName}</span>
               </div>
             )}
           </div>
         )}
 
-        {doneInfo?.error && (
+        {benchDoneInfo?.error && (
           <div className="rounded-lg border border-danger/40 bg-danger/10 p-3 text-sm text-danger">
-            Ошибка теста: {doneInfo.error}
+            Ошибка теста: {benchDoneInfo.error}
           </div>
         )}
 
-        {winner && !running && (
+        {winner && !benchRunning && (
           <div className="rounded-lg border border-success/40 bg-gradient-to-br from-success/15 to-bg-raised/40 p-4">
             <div className="mb-1 flex items-center gap-2 text-success">
               <Trophy className="h-4 w-4" />
@@ -192,11 +162,11 @@ export default function ProfileBenchPage(): JSX.Element {
             <h3 className="text-sm font-semibold text-fg-muted uppercase tracking-wide">
               Топ {TOP_N} по avg-пингу
             </h3>
-            <span className="text-xs text-fg-subtle">{results.length} профилей протестировано</span>
+            <span className="text-xs text-fg-subtle">{benchResults.length} профилей протестировано</span>
           </div>
           {top.length === 0 ? (
             <div className="text-sm text-fg-subtle">
-              {running ? 'Идёт замер…' : 'Запустите тест, чтобы увидеть топ.'}
+              {benchRunning ? 'Идёт замер…' : 'Запустите тест, чтобы увидеть топ.'}
             </div>
           ) : (
             <div className="space-y-1.5">
@@ -207,10 +177,10 @@ export default function ProfileBenchPage(): JSX.Element {
           )}
         </div>
 
-        {results.length > TOP_N && (
+        {benchResults.length > TOP_N && (
           <details className="card p-3">
             <summary className="cursor-pointer text-sm font-medium text-fg-muted">
-              Остальные ({results.length - TOP_N})
+              Остальные ({benchResults.length - TOP_N})
             </summary>
             <div className="mt-3 space-y-1.5">
               {sorted.slice(TOP_N).map((r, i) => (

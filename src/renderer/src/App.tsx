@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useApp } from './store'
 import Titlebar from './components/Titlebar'
 import Sidebar from './components/Sidebar'
@@ -14,29 +14,22 @@ import FixesPage from './pages/FixesPage'
 import ProfileBenchPage from './pages/ProfileBenchPage'
 import UpdatePrompt from './components/UpdatePrompt'
 import UpdateProgressToast from './components/UpdateProgressToast'
-import IntroSplash from './components/IntroSplash'
 
 export default function App(): JSX.Element {
   const { route, settings, bootstrap } = useApp()
-  const [introDone, setIntroDone] = useState(false)
 
   useEffect(() => {
     void bootstrap()
   }, [bootstrap])
 
-  const intro = !introDone ? <IntroSplash onDone={() => setIntroDone(true)} /> : null
-
   if (!settings) {
     return (
-      <>
-        <div className="flex h-full items-center justify-center text-fg-muted">
-          <div className="flex flex-col items-center gap-3">
-            <div className="h-3 w-3 animate-pulseDot rounded-full bg-accent" />
-            <div className="text-sm">Загрузка…</div>
-          </div>
+      <div className="flex h-full items-center justify-center text-fg-muted">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-3 w-3 animate-pulseDot rounded-full bg-accent" />
+          <div className="text-sm">Загрузка…</div>
         </div>
-        {intro}
-      </>
+      </div>
     )
   }
 
@@ -46,7 +39,6 @@ export default function App(): JSX.Element {
         <Titlebar showNav={false} />
         <SetupPage />
         <UpdatePrompt />
-        {intro}
       </div>
     )
   }
@@ -70,7 +62,6 @@ export default function App(): JSX.Element {
       </div>
       <UpdatePrompt />
       <UpdateProgressToast />
-      {intro}
     </div>
   )
 }
