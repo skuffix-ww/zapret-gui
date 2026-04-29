@@ -30,6 +30,8 @@ import { RECOMMENDATIONS } from './recommendations'
 import { resolveIcons } from './iconCache'
 import { chocoJobs, chocoStatus } from './choco'
 import { applyTweak, getCatalog as getTweaksCatalog, listTweaksWithState, revertTweak } from './tweaks'
+import { listFixesWithState, applyFix, revertFix } from './fixes'
+import { profileBench } from './profileBench'
 import type { TweakInfo } from '@shared/types'
 
 function remindLater(ms: number): AppSettings {
@@ -191,6 +193,26 @@ export function registerIpc(): void {
   ipcMain.handle(IPC.tweaksState, () => listTweaksWithState())
   ipcMain.handle(IPC.tweaksApply, (_e, id: string) => applyTweak(id))
   ipcMain.handle(IPC.tweaksRevert, (_e, id: string) => revertTweak(id))
+
+  ipcMain.handle(IPC.fixesList, () => listFixesWithState())
+  ipcMain.handle(IPC.fixesApply, (_e, id: string) => applyFix(id))
+  ipcMain.handle(IPC.fixesRevert, (_e, id: string) => revertFix(id))
+
+  // ---------- profile bench ----------
+  ipcMain.handle(IPC.benchStart, async (_e, profileIds?: string[]) => {
+    const all = listProfiles()
+    const targets = profileIds && profileIds.length > 0
+      ? all.filter((p) => profileIds.includes(p.id))
+      : all
+    if (targets.length === 0) throw new Error('Нет профилей для теста')
+    if (profileBench.isRunning()) throw new Error('Тест уже идёт')
+    void profileBench.run(targets).catch(() => {/* errors already emitted via events */})
+    return true
+  })
+  ipcMain.handle(IPC.benchCancel, () => {
+    profileBench.cancel()
+    return true
+  })
 
   ipcMain.handle(IPC.systemIsAdmin, async () => {
     if (process.platform !== 'win32') return false

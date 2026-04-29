@@ -10,6 +10,7 @@ import { getSettings } from './settings'
 import { migrateLegacyUserData } from './migrate'
 import { chocoJobs } from './choco'
 import { startGameWatcher, stopGameWatcher } from './gameWatcher'
+import { profileBench } from './profileBench'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -52,6 +53,9 @@ function wireEvents(win: BrowserWindow): void {
   runner.on('state', (s) => broadcast(win, IPC.runStateEvent, s))
   downloader.on('progress', (p) => broadcast(win, IPC.downloadProgressEvent, p))
   chocoJobs.on('state', (s) => broadcast(win, IPC.chocoJobEvent, s))
+  profileBench.on('progress', (p) => broadcast(win, IPC.benchProgressEvent, p))
+  profileBench.on('result', (r) => broadcast(win, IPC.benchResultEvent, r))
+  profileBench.on('done', (d) => broadcast(win, IPC.benchDoneEvent, d))
 }
 
 app.whenReady().then(() => {

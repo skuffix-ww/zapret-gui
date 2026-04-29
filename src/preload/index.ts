@@ -6,10 +6,14 @@ import type {
   ChocoStatus,
   DomainList,
   DownloadProgress,
+  FixState,
+  GameFixInfo,
   LogEntry,
   PingResult,
   PingTarget,
   Profile,
+  ProfileBenchProgress,
+  ProfileBenchResult,
   RecommendationCategory,
   RunState,
   ServiceStatus,
@@ -125,6 +129,30 @@ const api = {
     state: (): Promise<TweakState[]> => ipcRenderer.invoke(IPC.tweaksState),
     apply: (id: string): Promise<TweakState> => ipcRenderer.invoke(IPC.tweaksApply, id),
     revert: (id: string): Promise<TweakState> => ipcRenderer.invoke(IPC.tweaksRevert, id)
+  },
+  fixes: {
+    list: (): Promise<Array<GameFixInfo & FixState>> => ipcRenderer.invoke(IPC.fixesList),
+    apply: (id: string): Promise<FixState> => ipcRenderer.invoke(IPC.fixesApply, id),
+    revert: (id: string): Promise<FixState> => ipcRenderer.invoke(IPC.fixesRevert, id)
+  },
+  bench: {
+    start: (profileIds?: string[]): Promise<boolean> => ipcRenderer.invoke(IPC.benchStart, profileIds),
+    cancel: (): Promise<boolean> => ipcRenderer.invoke(IPC.benchCancel),
+    onProgress: (cb: (p: ProfileBenchProgress) => void): Unsub => {
+      const listener = (_: unknown, p: ProfileBenchProgress): void => cb(p)
+      ipcRenderer.on(IPC.benchProgressEvent, listener)
+      return () => ipcRenderer.off(IPC.benchProgressEvent, listener)
+    },
+    onResult: (cb: (r: ProfileBenchResult) => void): Unsub => {
+      const listener = (_: unknown, r: ProfileBenchResult): void => cb(r)
+      ipcRenderer.on(IPC.benchResultEvent, listener)
+      return () => ipcRenderer.off(IPC.benchResultEvent, listener)
+    },
+    onDone: (cb: (d: { cancelled: boolean; error?: string }) => void): Unsub => {
+      const listener = (_: unknown, d: { cancelled: boolean; error?: string }): void => cb(d)
+      ipcRenderer.on(IPC.benchDoneEvent, listener)
+      return () => ipcRenderer.off(IPC.benchDoneEvent, listener)
+    }
   }
 }
 

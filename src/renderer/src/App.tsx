@@ -10,6 +10,8 @@ import SetupPage from './pages/SetupPage'
 import DiagnosticsPage from './pages/DiagnosticsPage'
 import RecommendationsPage from './pages/RecommendationsPage'
 import TweaksPage from './pages/TweaksPage'
+import FixesPage from './pages/FixesPage'
+import ProfileBenchPage from './pages/ProfileBenchPage'
 import UpdatePrompt from './components/UpdatePrompt'
 import UpdateProgressToast from './components/UpdateProgressToast'
 import IntroSplash from './components/IntroSplash'
@@ -61,6 +63,8 @@ export default function App(): JSX.Element {
           {route === 'diagnostics' && <DiagnosticsPage />}
           {route === 'recommendations' && <RecommendationsPage />}
           {route === 'tweaks' && <TweaksPage />}
+          {route === 'fixes' && <FixesPage />}
+          {route === 'bench' && <ProfileBenchPage />}
           {route === 'settings' && <SettingsPage />}
         </main>
       </div>

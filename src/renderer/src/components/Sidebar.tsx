@@ -1,12 +1,12 @@
-import { Home, SlidersHorizontal, ListTree, Settings, Activity, Heart, ExternalLink, Sparkles, ShieldOff } from 'lucide-react'
+import { Home, SlidersHorizontal, ListTree, Settings, Activity, Heart, ExternalLink, Sparkles, ShieldOff, Gamepad2, Trophy } from 'lucide-react'
 import { useApp } from '../store'
 import { cn } from '../lib/cn'
 import Logo from './Logo'
 
-const APP_VERSION = '0.2.2'
+const APP_VERSION = '0.2.3'
 
 const NAV: Array<{
-  id: 'home' | 'editor' | 'lists' | 'diagnostics' | 'recommendations' | 'tweaks' | 'settings'
+  id: 'home' | 'editor' | 'lists' | 'diagnostics' | 'recommendations' | 'tweaks' | 'fixes' | 'bench' | 'settings'
   label: string
   icon: typeof Home
 }> = [
@@ -14,8 +14,10 @@ const NAV: Array<{
   { id: 'editor', label: 'Редактор', icon: SlidersHorizontal },
   { id: 'lists', label: 'Списки', icon: ListTree },
   { id: 'diagnostics', label: 'Диагностика', icon: Activity },
+  { id: 'bench', label: 'Тест альтов', icon: Trophy },
   { id: 'recommendations', label: 'Рекомендации', icon: Sparkles },
   { id: 'tweaks', label: 'Твики', icon: ShieldOff },
+  { id: 'fixes', label: 'Фиксы', icon: Gamepad2 },
   { id: 'settings', label: 'Настройки', icon: Settings }
 ]
 

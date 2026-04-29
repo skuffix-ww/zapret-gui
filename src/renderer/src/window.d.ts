@@ -4,10 +4,14 @@ import type {
   ChocoStatus,
   DomainList,
   DownloadProgress,
+  FixState,
+  GameFixInfo,
   LogEntry,
   PingResult,
   PingTarget,
   Profile,
+  ProfileBenchProgress,
+  ProfileBenchResult,
   RecommendationCategory,
   RunState,
   ServiceStatus,
@@ -94,6 +98,18 @@ interface ZapretApi {
     state: () => Promise<TweakState[]>
     apply: (id: string) => Promise<TweakState>
     revert: (id: string) => Promise<TweakState>
+  }
+  fixes: {
+    list: () => Promise<Array<GameFixInfo & FixState>>
+    apply: (id: string) => Promise<FixState>
+    revert: (id: string) => Promise<FixState>
+  }
+  bench: {
+    start: (profileIds?: string[]) => Promise<boolean>
+    cancel: () => Promise<boolean>
+    onProgress: (cb: (p: ProfileBenchProgress) => void) => Unsub
+    onResult: (cb: (r: ProfileBenchResult) => void) => Unsub
+    onDone: (cb: (d: { cancelled: boolean; error?: string }) => void) => Unsub
   }
 }
 

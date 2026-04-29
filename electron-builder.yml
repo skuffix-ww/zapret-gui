@@ -33,4 +33,7 @@ nsis:
   perMachine: true
   allowToChangeInstallationDirectory: true
   shortcutName: UnLimit
+  artifactName: ${productName}-${version}-Setup.${ext}
+portable:
+  artifactName: ${productName}-${version}-Portable.${ext}
 asar: true

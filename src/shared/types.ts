@@ -182,6 +182,53 @@ export interface TweakState {
   appliedAt: number | null
 }
 
+export interface GameFixInfo {
+  id: string
+  label: string
+  description: string
+  icon: string
+  color: string
+  domains: string[]
+  /** CIDR-сети, которые добавляются в lists/ipset-all.txt — для случаев когда домены не помогают (например Roblox). */
+  ipsets?: string[]
+}
+
+export interface FixState {
+  id: string
+  applied: boolean
+  present: number
+  total: number
+  /** Сколько IP-сетей применено / всего (если фикс содержит ipsets). */
+  ipsetsPresent?: number
+  ipsetsTotal?: number
+}
+
+export interface ProfileBenchProgress {
+  phase: 'idle' | 'preparing' | 'running' | 'done' | 'error' | 'cancelled'
+  /** ID текущего тестируемого профиля. */
+  currentProfileId: string | null
+  currentProfileName: string | null
+  /** Сколько профилей уже протестировано. */
+  done: number
+  total: number
+  message: string
+}
+
+export interface ProfileBenchResult {
+  profileId: string
+  profileName: string
+  /** Среднее avg по всем успешным таргетам. null если все упали. */
+  avgMs: number | null
+  successRate: number
+  /** Сколько таргетов пропинговалось успешно. */
+  okTargets: number
+  totalTargets: number
+  /** Подробные результаты по каждому таргету. */
+  perTarget: PingResult[]
+  /** Сообщение об ошибке (например, не получилось запустить winws). */
+  error?: string
+}
+
 export const IPC = {
   settingsGet: 'settings:get',
   settingsSet: 'settings:set',
@@ -226,7 +273,15 @@ export const IPC = {
   tweaksList: 'tweaks:list',
   tweaksState: 'tweaks:state',
   tweaksApply: 'tweaks:apply',
-  tweaksRevert: 'tweaks:revert'
+  tweaksRevert: 'tweaks:revert',
+  fixesList: 'fixes:list',
+  fixesApply: 'fixes:apply',
+  fixesRevert: 'fixes:revert',
+  benchStart: 'bench:start',
+  benchCancel: 'bench:cancel',
+  benchProgressEvent: 'bench:progress-event',
+  benchResultEvent: 'bench:result-event',
+  benchDoneEvent: 'bench:done-event'
 } as const
 
 export type IpcChannel = (typeof IPC)[keyof typeof IPC]
