@@ -3,42 +3,67 @@ import { Activity, Globe, Loader2, Play, Trophy } from 'lucide-react'
 import type { PingResult, PingTarget } from '@shared/types'
 import { cn } from '../lib/cn'
 import { useApp } from '../store'
-import { BRAND_COLORS, DiscordIcon, YouTubeIcon } from '../components/icons/SimpleIcons'
-
-type IconComponent = (props: { className?: string; style?: React.CSSProperties }) => JSX.Element
 
 interface ProbeDef {
   target: PingTarget
   category: string
   color: string
-  Icon: IconComponent
+  /** Domain used for favicon resolution. */
+  faviconDomain: string
 }
-
-const GenericIcon: IconComponent = (props) => <Globe className={props.className} style={props.style} />
 
 const PROBES: ProbeDef[] = [
   // Discord
-  { target: { id: 'discord', label: 'Discord', host: 'discord.com', port: 443 }, category: 'Discord', color: BRAND_COLORS.discord, Icon: DiscordIcon },
-  { target: { id: 'discord-gateway', label: 'Discord Gateway', host: 'gateway.discord.gg', port: 443 }, category: 'Discord', color: BRAND_COLORS.discord, Icon: DiscordIcon },
-  { target: { id: 'discord-cdn', label: 'Discord CDN', host: 'cdn.discordapp.com', port: 443 }, category: 'Discord', color: BRAND_COLORS.discord, Icon: DiscordIcon },
-  { target: { id: 'discord-media', label: 'Discord Media', host: 'media.discordapp.net', port: 443 }, category: 'Discord', color: BRAND_COLORS.discord, Icon: DiscordIcon },
+  { target: { id: 'discord', label: 'Discord', host: 'discord.com', port: 443 }, category: 'Discord', color: '#5865F2', faviconDomain: 'discord.com' },
+  { target: { id: 'discord-gateway', label: 'Discord Gateway', host: 'gateway.discord.gg', port: 443 }, category: 'Discord', color: '#5865F2', faviconDomain: 'discord.com' },
+  { target: { id: 'discord-cdn', label: 'Discord CDN', host: 'cdn.discordapp.com', port: 443 }, category: 'Discord', color: '#5865F2', faviconDomain: 'discord.com' },
+  { target: { id: 'discord-media', label: 'Discord Media', host: 'media.discordapp.net', port: 443 }, category: 'Discord', color: '#5865F2', faviconDomain: 'discord.com' },
   // YouTube
-  { target: { id: 'youtube', label: 'YouTube', host: 'www.youtube.com', port: 443 }, category: 'YouTube', color: BRAND_COLORS.youtube, Icon: YouTubeIcon },
-  { target: { id: 'youtube-api', label: 'YouTube API', host: 'youtubei.googleapis.com', port: 443 }, category: 'YouTube', color: BRAND_COLORS.youtube, Icon: YouTubeIcon },
-  { target: { id: 'googlevideo', label: 'GoogleVideo CDN', host: 'rr5---sn-q4f7snes.googlevideo.com', port: 443 }, category: 'YouTube', color: BRAND_COLORS.youtube, Icon: YouTubeIcon },
+  { target: { id: 'youtube', label: 'YouTube', host: 'www.youtube.com', port: 443 }, category: 'YouTube', color: '#FF0000', faviconDomain: 'youtube.com' },
+  { target: { id: 'youtube-api', label: 'YouTube API', host: 'youtubei.googleapis.com', port: 443 }, category: 'YouTube', color: '#FF0000', faviconDomain: 'youtube.com' },
+  { target: { id: 'googlevideo', label: 'GoogleVideo CDN', host: 'rr5---sn-q4f7snes.googlevideo.com', port: 443 }, category: 'YouTube', color: '#FF0000', faviconDomain: 'youtube.com' },
   // Cloudflare / прочее
-  { target: { id: 'cloudflare', label: 'Cloudflare DNS', host: '1.1.1.1', port: 443 }, category: 'Прочее', color: '#F38020', Icon: GenericIcon },
-  { target: { id: 'github', label: 'GitHub', host: 'github.com', port: 443 }, category: 'Прочее', color: '#a0a4a8', Icon: GenericIcon },
-  { target: { id: 'twitch', label: 'Twitch', host: 'www.twitch.tv', port: 443 }, category: 'Прочее', color: '#9146FF', Icon: GenericIcon },
-  { target: { id: 'steam', label: 'Steam Store', host: 'store.steampowered.com', port: 443 }, category: 'Прочее', color: '#1B2838', Icon: GenericIcon },
-  { target: { id: 'telegram', label: 'Telegram Web', host: 'web.telegram.org', port: 443 }, category: 'Прочее', color: '#26A5E4', Icon: GenericIcon },
-  { target: { id: 'reddit', label: 'Reddit', host: 'www.reddit.com', port: 443 }, category: 'Прочее', color: '#FF4500', Icon: GenericIcon },
-  { target: { id: 'twitter', label: 'X (Twitter)', host: 'x.com', port: 443 }, category: 'Прочее', color: '#a0a4a8', Icon: GenericIcon },
-  { target: { id: 'spotify', label: 'Spotify', host: 'open.spotify.com', port: 443 }, category: 'Прочее', color: '#1DB954', Icon: GenericIcon },
-  { target: { id: 'sbox', label: 's&box (Facepunch)', host: 'sbox.facepunch.com', port: 443 }, category: 'Игры', color: '#3F8EFC', Icon: GenericIcon },
-  { target: { id: 'rust-facepunch', label: 'Rust (Facepunch)', host: 'companion-rust.facepunch.com', port: 443 }, category: 'Игры', color: '#CD412B', Icon: GenericIcon },
-  { target: { id: 'epic', label: 'Epic Games', host: 'store.epicgames.com', port: 443 }, category: 'Игры', color: '#a0a4a8', Icon: GenericIcon }
+  { target: { id: 'cloudflare', label: 'Cloudflare DNS', host: '1.1.1.1', port: 443 }, category: 'Прочее', color: '#F38020', faviconDomain: 'cloudflare.com' },
+  { target: { id: 'github', label: 'GitHub', host: 'github.com', port: 443 }, category: 'Прочее', color: '#a0a4a8', faviconDomain: 'github.com' },
+  { target: { id: 'twitch', label: 'Twitch', host: 'www.twitch.tv', port: 443 }, category: 'Прочее', color: '#9146FF', faviconDomain: 'twitch.tv' },
+  { target: { id: 'steam', label: 'Steam Store', host: 'store.steampowered.com', port: 443 }, category: 'Прочее', color: '#1B2838', faviconDomain: 'store.steampowered.com' },
+  { target: { id: 'telegram', label: 'Telegram Web', host: 'web.telegram.org', port: 443 }, category: 'Прочее', color: '#26A5E4', faviconDomain: 'telegram.org' },
+  { target: { id: 'reddit', label: 'Reddit', host: 'www.reddit.com', port: 443 }, category: 'Прочее', color: '#FF4500', faviconDomain: 'reddit.com' },
+  { target: { id: 'twitter', label: 'X (Twitter)', host: 'x.com', port: 443 }, category: 'Прочее', color: '#a0a4a8', faviconDomain: 'x.com' },
+  { target: { id: 'spotify', label: 'Spotify', host: 'open.spotify.com', port: 443 }, category: 'Прочее', color: '#1DB954', faviconDomain: 'spotify.com' },
+  { target: { id: 'sbox', label: 's&box (Facepunch)', host: 'sbox.facepunch.com', port: 443 }, category: 'Игры', color: '#3F8EFC', faviconDomain: 'sbox.game' },
+  { target: { id: 'rust-facepunch', label: 'Rust (Facepunch)', host: 'companion-rust.facepunch.com', port: 443 }, category: 'Игры', color: '#CD412B', faviconDomain: 'rust.facepunch.com' },
+  { target: { id: 'epic', label: 'Epic Games', host: 'store.epicgames.com', port: 443 }, category: 'Игры', color: '#a0a4a8', faviconDomain: 'epicgames.com' }
 ]
+
+function faviconUrl(domain: string): string {
+  return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`
+}
+
+function Favicon({
+  domain,
+  color,
+  className,
+  size = 'h-5 w-5'
+}: {
+  domain: string
+  color: string
+  className?: string
+  size?: string
+}): JSX.Element {
+  const [failed, setFailed] = useState(false)
+  if (failed) {
+    return <Globe className={cn(size, 'shrink-0', className)} style={{ color }} />
+  }
+  return (
+    <img
+      src={faviconUrl(domain)}
+      alt=""
+      onError={() => setFailed(true)}
+      className={cn(size, 'shrink-0 rounded-sm object-contain', className)}
+    />
+  )
+}
 
 const DEFAULT_ATTEMPTS = 5
 const DEFAULT_TIMEOUT = 5000
@@ -149,7 +174,7 @@ export default function DiagnosticsPage(): JSX.Element {
                   <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border bg-bg-raised text-xs font-mono text-fg-subtle">
                     {i + 1}
                   </div>
-                  <probe.Icon className="h-5 w-5 shrink-0" style={{ color: probe.color }} />
+                  <Favicon domain={probe.faviconDomain} color={probe.color} size="h-5 w-5" />
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-xs font-medium">{probe.target.label}</div>
                     <div className={cn('font-mono text-sm', toneClass(toneForMs(res.avg)))}>{formatMs(res.avg)}</div>
@@ -241,7 +266,7 @@ function ProbeCard({
     <div className="card p-4">
       <div className="mb-3 flex items-start justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <probe.Icon className="h-7 w-7 shrink-0" style={{ color: probe.color }} />
+          <Favicon domain={probe.faviconDomain} color={probe.color} size="h-7 w-7" />
           <div className="min-w-0">
             <div className="font-medium truncate">{probe.target.label}</div>
             <div className="text-[11px] text-fg-subtle truncate">

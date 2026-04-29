@@ -3,7 +3,7 @@ import { useApp } from '../store'
 import { cn } from '../lib/cn'
 import Logo from './Logo'
 
-const APP_VERSION = '0.2.3'
+const APP_VERSION = '0.2.4'
 
 const NAV: Array<{
   id: 'home' | 'editor' | 'lists' | 'diagnostics' | 'recommendations' | 'tweaks' | 'fixes' | 'bench' | 'settings'
