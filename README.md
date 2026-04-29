@@ -1,183 +1,142 @@
 # UnLimit
 
-> Раньше — `Zapret GUI`. Сейчас разрастается в **privacy & freedom toolkit для Windows**: обход блокировок, TG-прокси, твики приватности, рекомендации софта, per-app firewall.
+Privacy & freedom toolkit для Windows. Электрон-обёртка над [zapret-discord-youtube](https://github.com/Flowseal/zapret-discord-youtube) от Flowseal плюс набор смежных утилит — диагностика, рекомендации софта, твики приватности и фиксы для игр.
 
-Ядро остаётся прежним — приятная обёртка поверх [zapret-discord-youtube от Flowseal](https://github.com/Flowseal/zapret-discord-youtube): вместо того, чтобы выбирать один из двух десятков `general (ALT7).bat` наугад, правите набор `--new` секций мышкой, переключаете стратегии в один клик и видите живые логи `winws.exe`.
-
-Сделано **eblanchik.studios** ([eblanchik.ru](https://eblanchik.ru)).
-
-> **⚠️ Важно.** Приложение отгружается «как есть», без тестов, без CI, без благословения Flowseal. Автор не несёт никакой ответственности за то, что оно не запустится или порвёт вам интернет. Баг → **issue** или **PR**, любое полезное PR будет замерджено после короткого ревью.
+Работает поверх движка [bol-van/zapret](https://github.com/bol-van/zapret) (`winws.exe` + `WinDivert`). UnLimit не изобретает новые DPI-стратегии — он даёт удобный способ их выбирать, тестировать и применять.
 
 ---
 
-## Что умеет
+## Возможности
 
-- **Все 19 стратегий из официального репозитория Flowseal** как встроенные профили: `general`, `general (ALT)`..`(ALT11)`, `SIMPLE FAKE` × 3 варианта, `FAKE TLS AUTO` × 4 варианта. Обновляются автоматически при появлении нового релиза.
-- **Визуальный редактор стратегий.** Каждая `--new` секция — отдельная карточка: можно менять `--filter-tcp`, `--dpi-desync`, порядок, включать/выключать, добавлять свои.
-- **Автопроверка обновлений Flowseal.** При старте GUI стучится в GitHub Releases API. Если вышла новая версия — появляется окошко «Вышла новая версия X. Скачать? — Да / Напомнить позже / Нет».
-- **Автозагрузка с GitHub.** При первом запуске скачивает последний релиз Flowseal в выбранную вами папку. Никаких ручных распаковок zip-ом.
-- **Импорт/экспорт `.bat`.** Хотите поделиться стратегией с другом, которому GUI не нужен — экспорт в классический `.bat`, совместимый с оригинальным `service.bat`.
-- **Управление Windows-службой.** Установка/удаление автозапуска через `sc.exe create binPath= "winws.exe ..."`. Аналог `service.bat install_winws`.
-- **Редактор пользовательских списков.** `list-general-user.txt`, `list-exclude-user.txt`, `ipset-exclude-user.txt` — без открывания блокнотов и поисков папки в Explorer.
-- **Живые логи `winws.exe`** прямо внизу главного экрана — stdout/stderr с подсветкой уровней.
-- **GameFilter настройки.** `%GameFilterTCP%` / `%GameFilterUDP%` не зашиты намертво, а задаются в GUI.
+### Обход блокировок
+- Все встроенные стратегии Flowseal как профили: `general`, `general (ALT1..11)`, `SIMPLE FAKE`, `FAKE TLS AUTO` и т.д. Обновляются вместе с релизами Flowseal.
+- Визуальный редактор `--new` секций: меняйте `--filter-tcp`, `--dpi-desync`, порядок, добавляйте свои.
+- Импорт и экспорт `.bat` — совместимо с оригинальным `service.bat`.
+- Установка/удаление Windows-службы через `sc.exe` (аналог `service.bat install_winws`).
+- Редактор пользовательских списков (`list-general-user.txt`, `list-exclude-user.txt`, `ipset-exclude-user.txt`).
+- Авто-проверка релизов Flowseal с диалогом «Скачать / Напомнить позже / Пропустить».
 
-## Скриншоты
+### Тест альтов
+Прогоняет каждый профиль по очереди: запускает winws, прогревает 2.5с, пингует Discord/YouTube/Twitch и показывает топ-10 по avg-пингу. Удобно когда у вас «работает только ALT5» — найдёт реально лучший вариант для вашего провайдера.
 
-потом
+### Диагностика
+TLS-handshake до 18 популярных хостов (Discord/YouTube/Twitch/Steam/Telegram/Reddit/Spotify/ChatGPT/Roblox и т.д.). Запустите до и после включения UnLimit — увидите разницу.
+
+### Фиксы для игр и сервисов
+Кнопкой добавляет нужные домены в `list-general-user.txt`, чтобы winws применял стратегию к их трафику. Поддержано: s&box, Roblox (+ 47 IP-сетей в `ipset-all.txt`), Rust, Apex, CS2, Discord, YouTube, Twitch, Spotify, ChatGPT.
+
+### Рекомендации софта
+Подборка privacy / freedom утилит с one-click установкой через Chocolatey: лаунчеры, браузеры, репаки, VPN, утилиты приватности.
+
+### Твики приватности
+Apply/revert изменений реестра в духе Chris Titus WinUtil: отключение телеметрии, рекламы, Bing-поиска и т.п. С возможностью откатить.
+
+### Прочее
+- Живые логи `winws.exe` со stdout/stderr и подсветкой уровней.
+- Уведомления при запуске трекаемых игр.
+- Кастомные `GameFilterTCP` / `GameFilterUDP`.
+
+---
 
 ## Установка
 
-Проще всего — взять готовый `.exe` из [Releases](https://github.com/skuffix-ww/zapret-gui/releases). Установщик NSIS, запускать **от имени администратора** (иначе `WinDivert` не сможет зацепиться за сетевой стек).
+Скачайте `UnLimit-X.Y.Z-Setup.exe` или `UnLimit-X.Y.Z-Portable.exe` со страницы [Releases](https://github.com/skuffix-ww/UnLimit/releases). Запускать **от имени администратора** — без этого `WinDivert` не сможет хукнуть сетевой стек.
 
-При первом запуске открывается мастер:
+При первом запуске мастер предложит:
+1. **Скачать с GitHub** — UnLimit сам скачает последний релиз Flowseal в выбранную папку.
+2. **Указать установленный** — если zapret уже лежит на диске, ткните в папку с `bin/winws.exe` и `lists/`.
 
-1. **Скачать с GitHub** — приложение само скачает последний релиз Flowseal и распакует в папку, которую вы выбрали.
-2. **Указать установленный** — если zapret уже лежит где-то на диске, просто ткнёте в папку с `bin/winws.exe` и `lists/`.
+Бинарники подписаны self-signed сертификатом `skuffix.dev`, при первом запуске SmartScreen может ругаться.
 
 ## Системные требования
 
-- Windows 10 / 11 (zapret-windows же, на Linux/macOS просто не взлетит).
-- Права администратора — нужны `WinDivert`'у, чтобы хукать сетевые пакеты.
-- Интернет — чтобы скачать релиз Flowseal и проверять обновления (потом можно оффлайн).
+- Windows 10 / 11
+- Права администратора (для `WinDivert`)
+- Интернет для первой установки и проверки обновлений
+
+---
 
 ## Сборка из исходников
 
 ```bash
-git clone https://github.com/skuffix-ww/zapret-gui.git
-cd zapret-gui
+git clone https://github.com/skuffix-ww/UnLimit.git
+cd UnLimit
 npm install
-npm run dev            # dev-режим с hot-reload
-npm run build:win      # NSIS-инсталлятор в release/
+npm run dev            # dev-режим
+npm run build:win      # NSIS + portable в release/
 ```
 
-Для обновления встроенных профилей после обновления `_research/bats/`:
+Регенерация встроенных профилей после правок `_research/bats/`:
 
 ```bash
 npm run gen:profiles
 ```
 
-## Как это работает
+---
 
-### Модель данных
+## Как это устроено
 
-Стратегия Flowseal — это длинная команда `winws.exe` с блоками, разделёнными `--new`:
+Стратегия Flowseal — это команда `winws.exe` с блоками `--new`:
 
 ```
-winws.exe --wf-tcp=80,443 --wf-udp=443 \
-  --filter-udp=443 --hostlist=... --dpi-desync=fake --new \
-  --filter-tcp=443 --hostlist=... --dpi-desync=multisplit --new \
+winws.exe --wf-tcp=80,443 --wf-udp=443
+  --filter-udp=443 --hostlist=... --dpi-desync=fake --new
+  --filter-tcp=443 --hostlist=... --dpi-desync=multisplit --new
   ...
 ```
 
-Парсер в `src/shared/bat-parser.ts` разбирает это в:
+Парсер в `src/shared/bat-parser.ts` разбирает её в:
 
 ```ts
 interface Profile {
-  globalArgs: ArgEntry[]      // --wf-tcp, --wf-udp (до первого --new)
-  sections: StrategySection[] // каждая секция = один блок между --new
+  globalArgs: ArgEntry[]      // флаги до первого --new
+  sections: StrategySection[] // блоки между --new
 }
 ```
 
-`%BIN%` / `%LISTS%` заменяются на плейсхолдеры `${BIN}` / `${LISTS}`, которые при запуске подставляются реальными путями из настроек.
+Плейсхолдеры `%BIN%` / `%LISTS%` заменяются на реальные пути из настроек при запуске. `runner.ts` спавнит `winws.exe` через `child_process.spawn` без shell, стримит stdout/stderr в логгер.
 
-### Запуск
+Модули:
 
-`src/main/runner.ts` собирает `argv`, спавнит `winws.exe` через `child_process.spawn` без `shell`, чтобы не было проблем с экранированием, и стримит stdout/stderr в логгер. Нет никакого `cmd /c start`.
-
-### Служба
-
-`src/main/service.ts` использует системный `sc.exe create <имя> binPath= "\"winws.exe\" <флаги>" start= auto`. Корректно экранирует кавычки внутри `binPath`.
-
-### Обновления
-
-`src/main/updater.ts` бьёт в `https://api.github.com/repos/Flowseal/zapret-discord-youtube/releases/latest`, сравнивает `tag_name` с `installedReleaseTag` из настроек. Проверка проходит через 2 секунды после запуска + каждые 6 часов при открытом GUI. «Напомнить позже» сохраняет `updateRemindAt = now + 24h`, «Нет» сохраняет пропущенный тег, чтобы не доставать. В настройках есть кнопка «Проверить обновления» для ручной проверки.
-
-## Структура
-
-```
-src/
-├── main/                    # Electron main: всё бэк-ендное
-│   ├── index.ts             # создание окна, лайфцикл
-│   ├── ipc.ts               # IPC handlers, точка входа для renderer
-│   ├── downloader.ts        # GitHub release → папка установки
-│   ├── updater.ts           # проверка обновлений
-│   ├── runner.ts            # child_process для winws.exe
-│   ├── service.ts           # sc.exe create/delete/start/stop
-│   ├── profiles.ts          # CRUD профилей + встроенные
-│   ├── lists.ts             # чтение/запись list-*-user.txt
-│   ├── settings.ts          # electron-store
-│   ├── logger.ts            # EventEmitter → UI
-│   └── paths.ts             # utility
-├── preload/
-│   └── index.ts             # contextBridge → window.api
-├── shared/                  # общее между main и renderer
-│   ├── types.ts             # Profile, AppSettings, IPC channels
-│   └── bat-parser.ts        # parseBat, buildArgv, buildBat
-└── renderer/                # React UI
-    ├── src/
-    │   ├── App.tsx
-    │   ├── store.ts         # Zustand state
-    │   ├── components/
-    │   │   ├── Titlebar.tsx
-    │   │   ├── Sidebar.tsx
-    │   │   ├── LogPanel.tsx
-    │   │   ├── ArgEditor.tsx
-    │   │   ├── UpdatePrompt.tsx
-    │   │   └── UpdateProgressToast.tsx
-    │   └── pages/
-    │       ├── HomePage.tsx
-    │       ├── EditorPage.tsx
-    │       ├── ListsPage.tsx
-    │       ├── SettingsPage.tsx
-    │       └── SetupPage.tsx
-    └── index.html
-
-scripts/
-├── build-default-profiles.mjs   # .bat → resources/default-profiles.json
-└── sanity-check.mjs             # быстрая валидация парсера
-
-_research/bats/              # исходные .bat Flowseal'а (источник истины)
-resources/
-└── default-profiles.json    # сгенерированный набор встроенных профилей
-```
-
-## Стек
-
-- Electron 33
-- [electron-vite](https://electron-vite.org/) — сборка main/preload/renderer
-- React 18 + TypeScript
-- TailwindCSS
-- Zustand (глобальный state)
-- lucide-react (иконки)
-- adm-zip (распаковка релиза)
-- electron-store (persist настроек)
-- electron-builder (NSIS инсталлятор)
-
-## Roadmap UnLimit
-
-- [x] Ребрендинг → UnLimit, новый логотип, интро-видео
-- [ ] **TG-прокси** ([Flowseal/tg-ws-proxy](https://github.com/Flowseal/tg-ws-proxy)) встроенным Start/Stop
-- [ ] **Рекомендации софта** с автопарсингом иконок: Minecraft-лаунчеры (PrismLauncher / PineconeMC), VPN (Cloudflare 1.1.1.1, repack.me), браузеры, утилиты приватности
-- [ ] **Privacy tweaks** (à la Chris Titus WinUtil): отключение телеметрии, рекламы, Cortana, Bing-поиска, и т. д. — apply/revert с rollback
-- [ ] **UnGoogleYs** — отписать систему от Google
-- [ ] **Per-app firewall** — запретить интернет выбранным приложениям (через `netsh advfirewall`)
-- [ ] **Quick-launcher**: кнопки/хоткеи для запуска любых программ
-- [ ] Системный трей + автозапуск
-- [ ] Локализация (пока только русский)
-
-## Благодарности
-
-- **[Flowseal](https://github.com/Flowseal)** — за оригинальный [zapret-discord-youtube](https://github.com/Flowseal/zapret-discord-youtube) и весь подбор стратегий. Без него этой программы бы не было — она просто кнопочки к его работе. Также за [tg-ws-proxy](https://github.com/Flowseal/tg-ws-proxy).
-- **[bol-van/zapret](https://github.com/bol-van/zapret)** — за сам движок (`winws.exe`, WinDivert-интеграция).
-- **[Chris Titus Tech](https://github.com/ChrisTitusTech/winutil)** — за вдохновение для раздела твиков.
-
-## Лицензия
-
-MIT. Делайте что хотите.
-
-Бинарники `winws.exe`, `WinDivert*.dll` и списки `lists/*.txt` скачиваются с релизов Flowseal'а и не включены в этот репозиторий. У каждого своя лицензия, смотрите [оригинальный репо](https://github.com/Flowseal/zapret-discord-youtube).
+- `src/main/` — main-процесс: runner, downloader, updater, service, recommendations, tweaks, fixes, diagnostics, profile bench
+- `src/preload/index.ts` — `contextBridge` → `window.api`
+- `src/shared/` — общие типы и `bat-parser`
+- `src/renderer/` — React UI на Zustand
 
 ---
 
-Если читаете эту строку — спасибо. Ставьте звёздочку, ешьте вкусно, платите по счетам.
+## Стек
+
+Electron 33 · electron-vite · React 18 · TypeScript · TailwindCSS · Zustand · lucide-react · electron-builder
+
+---
+
+## Roadmap
+
+- [x] Все стратегии Flowseal как встроенные профили
+- [x] Авто-обновления Flowseal-релизов
+- [x] Управление Windows-службой
+- [x] Рекомендации софта + Chocolatey
+- [x] Privacy-твики (apply/revert)
+- [x] Фиксы для игр (Roblox + IP-сети, s&box, Discord и др.)
+- [x] Диагностика хостов с фавиконками
+- [x] Тест альтов (поиск лучшего профиля под провайдера)
+- [ ] **TG-прокси** ([Flowseal/tg-ws-proxy](https://github.com/Flowseal/tg-ws-proxy)) — встроенный Start/Stop
+- [ ] **Per-app firewall** — запрет интернета выбранным приложениям (`netsh advfirewall`)
+- [ ] **UnGoogleYs** — отвязка системы от Google
+- [ ] Системный трей + автозапуск
+- [ ] Локализация (сейчас только русский)
+
+---
+
+## Благодарности
+
+- **[Flowseal](https://github.com/Flowseal)** — за [zapret-discord-youtube](https://github.com/Flowseal/zapret-discord-youtube), подбор стратегий и [tg-ws-proxy](https://github.com/Flowseal/tg-ws-proxy).
+- **[bol-van/zapret](https://github.com/bol-van/zapret)** — за движок `winws.exe` и WinDivert-интеграцию.
+- **[Chris Titus Tech](https://github.com/ChrisTitusTech/winutil)** — за идеи для раздела твиков.
+
+## Лицензия
+
+MIT.
+
+Бинарники `winws.exe`, `WinDivert*.dll` и списки `lists/*.txt` не входят в этот репозиторий — они скачиваются с релизов Flowseal'а под своими лицензиями.
